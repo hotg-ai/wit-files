@@ -1,0 +1,5 @@
+//! Functions and types exposed by the Rune.
+
+
+/// A function called on startup.
+start: function()

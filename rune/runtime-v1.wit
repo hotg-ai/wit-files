@@ -1,0 +1,59 @@
+//! Host functions provided by the proc-block prober.
+
+/// Metadata describing a single node in the Machine Learning pipeline.
+record metadata {
+    /// The node's name.
+    name: string,
+    /// The node's version.
+    version: string,
+    /// A human-friendly description of the node.
+    ///
+    /// The text may include markdown.
+    description: option<string>,
+    /// The source repository containing this node.
+    repository: option<string>,
+    /// An array of strings that describe this package.
+    ///
+    /// Tags are typically used to assist in search and filtering.
+    tags: list<string>,
+    /// Arguments this node accepts.
+    arguments: list<argument-metadata>,
+    /// Information about this node's input tensors.
+    inputs: list<tensor-metadata>,
+    /// Information about this node's output tensors.
+    outputs: list<tensor-metadata>,
+}
+
+/// Information about a node's argument.
+record argument-metadata {
+    /// The argument's name.
+    name: string,
+    /// A human-friendly description of the argument.
+    ///
+    /// The text may include markdown.
+    description: option<string>,
+    /// A useful default value for this argument.
+    default-value: option<string>,
+    /// A hint about what type this argument may contain.
+    type-hint: option<type-hint>,
+}
+
+enum type-hint {
+    integer,
+    float,
+    oneline-string,
+    multiline-string,
+}
+
+/// Information about a tensor.
+record tensor-metadata {
+    /// The tensor's name.
+    name: string,
+    /// A human-friendly description of the tensor.
+    ///
+    /// The text may include markdown.
+    description: option<string>,
+}
+
+/// Register a node type with the runtime.
+register-node: function(metadata: metadata)
