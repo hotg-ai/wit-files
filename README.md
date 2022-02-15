@@ -66,42 +66,44 @@ Using the `rune` example from before, our JavaScript host provides the
 the WebAssembly module.
 
 ```console
-$ wit-bindgen js --export rune/runtime-v1.wit --import rune/rune-v1.wit --out-dir ./host
-Generating "./host/intrinsics.js"
-Generating "./host/rune-v1.d.ts"
-Generating "./host/rune-v1.js"
-Generating "./host/runtime-v1.d.ts"
-Generating "./host/runtime-v1.js"
+$ wit-bindgen js --export rune/runtime-v1.wit --import rune/rune-v1.wit --out-dir rune/js-host/
+Generating "rune/js-host/intrinsics.js"
+Generating "rune/js-host/rune-v1.d.ts"
+Generating "rune/js-host/rune-v1.js"
+Generating "rune/js-host/runtime-v1.d.ts"
+Generating "rune/js-host/runtime-v1.js"
 ```
 
-Loading the WebAssembly module is a bit more complicated because it is the
-host's job to set up host functions that the guest will call.
+These files can be packaged and published to NPM as-is, although you might want
+to create an `index.js` that re-exports everything from a single file.
 
-```ts
-import { RuneV1 } from "./rune-v1";
-import { RuntimeV1, addRuntimeV1ToImports, Metadata } from "./runtime-v1";
+To see how the generated bindings would be used in practice, check out the
+script under `example/index.ts`.
 
-// Retrieve the WebAssembly from somewhere
-const response: Response = await fetch("https://example.com/my.wasm");
-const wasm: ArrayBuffer = await response.arrayBuffer();
+It can be executed using the following:
 
-// First we construct an uninitialized Rune
-const instance = new RuneV1();
-// We need to implement the functions our Rune will import
-const runtimeFunctions: RuntimeV1 = {
-    registerNode: (meta: Metadata) => { ... }
-};
-// Next, create the imports object and add our runtime functions to it. We
-// can't use the runtimeFunctions object directly because our Rune may import
-// functions from multiple host modules.
-const imports = {};
-addRuntimeV1ToImports(imports, runtimeFunctions, name => instance.exports[])
-
-// Finally, we can finish initializing our Rune
-await instance.instantiate(wasm, imports);
-
-// Now, let's call a function from the Rune
-instance.start();
+```console
+$ cd examples
+$ yarn
+$ node --loader ts-node/esm ./index.ts ~/Documents/hotg-ai/proc-blocks/argmax.wasm
+[Registered Metadata] {
+  name: 'argmax',
+  version: '0.11.2',
+  description: '',
+  repository: '',
+  tags: [],
+  arguments: [],
+  inputs: [ { name: 'input', description: null } ],
+  outputs: [
+    {
+      name: 'max',
+      description: 'The index of the element with the highest value'
+    }
+  ]
+}
 ```
+
+(note: this assumes you have already compiled the arg max proc-block to
+WebAssembly)
 
 [wit]: https://github.com/bytecodealliance/wit-bindgen

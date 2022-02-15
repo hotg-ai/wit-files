@@ -2,6 +2,7 @@
   "name": "example",
   "main": "index.ts",
   "license": "MIT",
+  "type": "module",
   "dependencies": {
     "@hotg-ai/rune-wit-files": "../rune/js-host"
   },
