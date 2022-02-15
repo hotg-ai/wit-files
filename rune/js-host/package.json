@@ -12,9 +12,6 @@
     "generate-bindings": "wit-bindgen js --export ../runtime-v1.wit --import ../rune-v1.wit --out-dir .",
     "build": "tsc"
   },
-  "devDependencies": {
-    "typescript": "^4.5.5"
-  },
   "files": [
     "bindings",
     "index.js",
