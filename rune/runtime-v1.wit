@@ -74,14 +74,14 @@ example-shape: function(element-type: element-type, dimensions: dimensions) -> t
 /// The various types of values a tensor may contain.
 enum element-type {
     uint8,
-    uint8,
+    int8,
     uint16,
-    uint16,
+    int16,
     uint32,
-    uint32,
+    int32,
     float32,
     uint64,
-    uint64,
+    int64,
     float64,
 }
 
