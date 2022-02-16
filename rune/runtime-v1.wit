@@ -1,41 +1,39 @@
 //! Host functions provided by the proc-block prober.
 
 /// Metadata describing a single node in the Machine Learning pipeline.
-record metadata {
-    /// The node's name.
-    name: string,
-    /// The node's version.
-    version: string,
+resource metadata {
+    /// Create a new metadata object with the provided name and version number.
+    static new: function(name: string, version: string) -> metadata
     /// A human-friendly description of the node.
     ///
     /// The text may include markdown.
-    description: option<string>,
+    set-description: function(description: string)
     /// The source repository containing this node.
-    repository: option<string>,
-    /// An array of strings that describe this package.
+    set-repository: function(url: string)
+    /// Associate this node with a particular tag.
     ///
     /// Tags are typically used to assist in search and filtering.
-    tags: list<string>,
+    add-tag: function(tag: string)
     /// Arguments this node accepts.
-    arguments: list<argument-metadata>,
+    add-argument: function(arg: argument-metadata)
     /// Information about this node's input tensors.
-    inputs: list<tensor-metadata>,
+    add-input: function(metadata: tensor-metadata)
     /// Information about this node's output tensors.
-    outputs: list<tensor-metadata>,
+    add-output: function(metadata: tensor-metadata)
 }
 
 /// Information about a node's argument.
-record argument-metadata {
-    /// The argument's name.
-    name: string,
+resource argument-metadata {
+    /// Create a new named argument.
+    static new: function(name: string) -> argument-metadata
     /// A human-friendly description of the argument.
     ///
     /// The text may include markdown.
-    description: option<string>,
+    set-description: function(description: string)
     /// A useful default value for this argument.
-    default-value: option<string>,
+    set-default-value: function(default-value: string)
     /// A hint about what type this argument may contain.
-    type-hint: option<type-hint>,
+    set-type-hint: function (hint: type-hint)
 }
 
 enum type-hint {
@@ -46,15 +44,16 @@ enum type-hint {
 }
 
 /// Information about a tensor.
-record tensor-metadata {
-    /// The tensor's name.
-    name: string,
+resource tensor-metadata {
+    /// Create a new named tensor.
+    static new: function(name: string) -> tensor-metadata
     /// A human-friendly description of the tensor.
     ///
     /// The text may include markdown.
-    description: option<string>,
-    /// Hints provided to the runtime to let it reason about this tensor.
-    hints: list<tensor-hint>,
+    set-description: function(description: string)
+    /// Add a hint that provides the runtime with contextual information about
+    /// this node.
+    add-hint: function(hint: tensor-hint)
 }
 
 /// Hints that can be used by the runtime when inspecting a tensor.
@@ -67,6 +66,9 @@ interpret-as-image: function() -> tensor-hint
 interpret-as-audio: function() -> tensor-hint
 
 /// Hint that a tensor may have a particular shape.
+///
+/// Note: This hint will be removed in the future in favour of a more flexible
+/// mechanism.
 example-shape: function(element-type: element-type, dimensions: dimensions) -> tensor-hint
 
 /// The various types of values a tensor may contain.

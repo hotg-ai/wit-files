@@ -1,91 +1,8 @@
-/**
-* Metadata describing a single node in the Machine Learning pipeline.
-*/
-export interface Metadata {
-  /**
-  * The node's name.
-  */
-  name: string,
-  /**
-  * The node's version.
-  */
-  version: string,
-  /**
-  * A human-friendly description of the node.
-  * 
-  * The text may include markdown.
-  */
-  description: string | null,
-  /**
-  * The source repository containing this node.
-  */
-  repository: string | null,
-  /**
-  * An array of strings that describe this package.
-  * 
-  * Tags are typically used to assist in search and filtering.
-  */
-  tags: string[],
-  /**
-  * Arguments this node accepts.
-  */
-  arguments: ArgumentMetadata[],
-  /**
-  * Information about this node's input tensors.
-  */
-  inputs: TensorMetadata[],
-  /**
-  * Information about this node's output tensors.
-  */
-  outputs: TensorMetadata[],
-}
-/**
-* Information about a node's argument.
-*/
-export interface ArgumentMetadata {
-  /**
-  * The argument's name.
-  */
-  name: string,
-  /**
-  * A human-friendly description of the argument.
-  * 
-  * The text may include markdown.
-  */
-  description: string | null,
-  /**
-  * A useful default value for this argument.
-  */
-  defaultValue: string | null,
-  /**
-  * A hint about what type this argument may contain.
-  */
-  typeHint: TypeHint | null,
-}
 export enum TypeHint {
   Integer = 0,
   Float = 1,
   OnelineString = 2,
   MultilineString = 3,
-}
-/**
-* Information about a tensor.
-*/
-export interface TensorMetadata {
-  /**
-  * The tensor's name.
-  */
-  name: string,
-  /**
-  * A human-friendly description of the tensor.
-  * 
-  * The text may include markdown.
-  */
-  description: string | null,
-  /**
-  * Hints provided to the runtime to let it reason about this tensor.
-  */
-  hints: TensorHint[],
 }
 /**
 * The various types of values a tensor may contain.
@@ -125,6 +42,18 @@ export interface DimensionsFixed {
 export function addRuntimeV1ToImports(imports: any, obj: RuntimeV1, get_export: (name: string) => WebAssembly.ExportValue): void;
 export interface RuntimeV1 {
   /**
+  * Create a new metadata object with the provided name and version number.
+  */
+  metadataNew(name: string, version: string): Metadata;
+  /**
+  * Create a new named argument.
+  */
+  argumentMetadataNew(name: string): ArgumentMetadata;
+  /**
+  * Create a new named tensor.
+  */
+  tensorMetadataNew(name: string): TensorMetadata;
+  /**
   * Hint to the runtime that a tensor may be displayed as an image.
   */
   interpretAsImage(): TensorHint;
@@ -140,7 +69,69 @@ export interface RuntimeV1 {
   * Register a node type with the runtime.
   */
   registerNode(metadata: Metadata): void;
+  dropMetadata?: (val: Metadata) => void;
+  dropArgumentMetadata?: (val: ArgumentMetadata) => void;
+  dropTensorMetadata?: (val: TensorMetadata) => void;
   dropTensorHint?: (val: TensorHint) => void;
+}
+export interface Metadata {
+  /**
+  * A human-friendly description of the node.
+  * 
+  * The text may include markdown.
+  */
+  setDescription(description: string): void;
+  /**
+  * The source repository containing this node.
+  */
+  setRepository(url: string): void;
+  /**
+  * Associate this node with a particular tag.
+  * 
+  * Tags are typically used to assist in search and filtering.
+  */
+  addTag(tag: string): void;
+  /**
+  * Arguments this node accepts.
+  */
+  addArgument(arg: ArgumentMetadata): void;
+  /**
+  * Information about this node's input tensors.
+  */
+  addInput(metadata: TensorMetadata): void;
+  /**
+  * Information about this node's output tensors.
+  */
+  addOutput(metadata: TensorMetadata): void;
+}
+export interface ArgumentMetadata {
+  /**
+  * A human-friendly description of the argument.
+  * 
+  * The text may include markdown.
+  */
+  setDescription(description: string): void;
+  /**
+  * A useful default value for this argument.
+  */
+  setDefaultValue(defaultValue: string): void;
+  /**
+  * A hint about what type this argument may contain.
+  */
+  setTypeHint(hint: TypeHint): void;
+}
+export interface TensorMetadata {
+  /**
+  * A human-friendly description of the tensor.
+  * 
+  * The text may include markdown.
+  */
+  setDescription(description: string): void;
+  /**
+  * Add a hint that provides the runtime with contextual information about
+  * this node.
+  */
+  addHint(hint: TensorHint): void;
 }
 export interface TensorHint {
 }
