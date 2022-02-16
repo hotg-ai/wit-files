@@ -82,11 +82,65 @@ export interface TensorMetadata {
   * The text may include markdown.
   */
   description: string | null,
+  /**
+  * Hints provided to the runtime to let it reason about this tensor.
+  */
+  hints: TensorHint[],
+}
+/**
+* The various types of values a tensor may contain.
+*/
+export enum ElementType {
+  Uint8 = 0,
+  Uintint8 = 1,
+  Uint16 = 2,
+  Uintint16 = 3,
+  Uint32 = 4,
+  Uintint32 = 5,
+  Float32 = 6,
+  Uint64 = 7,
+  Uintint64 = 8,
+  Float64 = 9,
+}
+/**
+* The dimensions that a tensor may have.
+*/
+export type Dimensions = DimensionsDynamic | DimensionsFixed;
+/**
+* There can be an arbitrary number of dimensions with arbitrary sizes.
+*/
+export interface DimensionsDynamic {
+  tag: "dynamic",
+}
+/**
+* The tensor has a fixed rank with the provided dimension sizes.
+* 
+* If a particular dimension's length is zero, that is interpreted as the
+* dimension being allowed to have any arbitrary length.
+*/
+export interface DimensionsFixed {
+  tag: "fixed",
+  val: Uint32Array,
 }
 export function addRuntimeV1ToImports(imports: any, obj: RuntimeV1, get_export: (name: string) => WebAssembly.ExportValue): void;
 export interface RuntimeV1 {
   /**
+  * Hint to the runtime that a tensor may be displayed as an image.
+  */
+  interpretAsImage(): TensorHint;
+  /**
+  * Hint to the runtime that a tensor may be interpreted as an audio clip.
+  */
+  interpretAsAudio(): TensorHint;
+  /**
+  * Hint that a tensor may have a particular shape.
+  */
+  exampleShape(elementType: ElementType, dimensions: Dimensions): TensorHint;
+  /**
   * Register a node type with the runtime.
   */
   registerNode(metadata: Metadata): void;
+  dropTensorHint?: (val: TensorHint) => void;
+}
+export interface TensorHint {
 }

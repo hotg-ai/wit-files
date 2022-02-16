@@ -1,4 +1,4 @@
-import { data_view, UTF8_DECODER } from './intrinsics.js';
+import { data_view, UTF8_DECODER, Slab } from './intrinsics.js';
 export const TypeHint = Object.freeze({
   0: "Integer",
   "Integer": 0,
@@ -9,8 +9,66 @@ export const TypeHint = Object.freeze({
   3: "MultilineString",
   "MultilineString": 3,
 });
+export const ElementType = Object.freeze({
+  0: "Uint8",
+  "Uint8": 0,
+  1: "Uintint8",
+  "Uintint8": 1,
+  2: "Uint16",
+  "Uint16": 2,
+  3: "Uintint16",
+  "Uintint16": 3,
+  4: "Uint32",
+  "Uint32": 4,
+  5: "Uintint32",
+  "Uintint32": 5,
+  6: "Float32",
+  "Float32": 6,
+  7: "Uint64",
+  "Uint64": 7,
+  8: "Uintint64",
+  "Uintint64": 8,
+  9: "Float64",
+  "Float64": 9,
+});
 export function addRuntimeV1ToImports(imports, obj, get_export) {
   if (!("runtime-v1" in imports)) imports["runtime-v1"] = {};
+  imports["runtime-v1"]["interpret-as-image"] = function() {
+    const ret = obj.interpretAsImage();
+    return resources0.insert(ret);
+  };
+  imports["runtime-v1"]["interpret-as-audio"] = function() {
+    const ret = obj.interpretAsAudio();
+    return resources0.insert(ret);
+  };
+  imports["runtime-v1"]["example-shape"] = function(arg0, arg1, arg2, arg3) {
+    const memory = get_export("memory");
+    const tag0 = arg0;
+    if (!(tag0 in ElementType))
+    throw new RangeError("invalid discriminant specified for ElementType");
+    let variant2;
+    switch (arg1) {
+      case 0: {
+        variant2 = {
+          tag: "dynamic",
+        };
+        break;
+      }
+      case 1: {
+        const ptr1 = arg2;
+        const len1 = arg3;
+        variant2 = {
+          tag: "fixed",
+          val: new Uint32Array(memory.buffer.slice(ptr1, ptr1 + len1 * 4)),
+        };
+        break;
+      }
+      default:
+      throw new RangeError("invalid variant discriminant for Dimensions");
+    }
+    const ret = obj.exampleShape(tag0, variant2);
+    return resources0.insert(ret);
+  };
   imports["runtime-v1"]["register-node"] = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17) {
     const memory = get_export("memory");
     const ptr0 = arg0;
@@ -116,11 +174,11 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
         typeHint: variant14,
       });
     }
-    const len19 = arg15;
-    const base19 = arg14;
-    const result19 = [];
-    for (let i = 0; i < len19; i++) {
-      const base = base19 + i * 20;
+    const len20 = arg15;
+    const base20 = arg14;
+    const result20 = [];
+    for (let i = 0; i < len20; i++) {
+      const base = base20 + i * 28;
       const ptr16 = data_view(memory).getInt32(base + 0, true);
       const len16 = data_view(memory).getInt32(base + 4, true);
       let variant18;
@@ -138,36 +196,52 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
         default:
         throw new RangeError("invalid variant discriminant for option");
       }
-      result19.push({
+      const len19 = data_view(memory).getInt32(base + 24, true);
+      const base19 = data_view(memory).getInt32(base + 20, true);
+      const result19 = [];
+      for (let i = 0; i < len19; i++) {
+        const base = base19 + i * 4;
+        result19.push(resources0.get(data_view(memory).getInt32(base + 0, true)));
+      }
+      result20.push({
         name: UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr16, len16)),
         description: variant18,
+        hints: result19,
       });
     }
-    const len23 = arg17;
-    const base23 = arg16;
-    const result23 = [];
-    for (let i = 0; i < len23; i++) {
-      const base = base23 + i * 20;
-      const ptr20 = data_view(memory).getInt32(base + 0, true);
-      const len20 = data_view(memory).getInt32(base + 4, true);
-      let variant22;
+    const len25 = arg17;
+    const base25 = arg16;
+    const result25 = [];
+    for (let i = 0; i < len25; i++) {
+      const base = base25 + i * 28;
+      const ptr21 = data_view(memory).getInt32(base + 0, true);
+      const len21 = data_view(memory).getInt32(base + 4, true);
+      let variant23;
       switch (data_view(memory).getUint8(base + 8, true)) {
         case 0: {
-          variant22 = null;
+          variant23 = null;
           break;
         }
         case 1: {
-          const ptr21 = data_view(memory).getInt32(base + 12, true);
-          const len21 = data_view(memory).getInt32(base + 16, true);
-          variant22 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr21, len21));
+          const ptr22 = data_view(memory).getInt32(base + 12, true);
+          const len22 = data_view(memory).getInt32(base + 16, true);
+          variant23 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr22, len22));
           break;
         }
         default:
         throw new RangeError("invalid variant discriminant for option");
       }
-      result23.push({
-        name: UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr20, len20)),
-        description: variant22,
+      const len24 = data_view(memory).getInt32(base + 24, true);
+      const base24 = data_view(memory).getInt32(base + 20, true);
+      const result24 = [];
+      for (let i = 0; i < len24; i++) {
+        const base = base24 + i * 4;
+        result24.push(resources0.get(data_view(memory).getInt32(base + 0, true)));
+      }
+      result25.push({
+        name: UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr21, len21)),
+        description: variant23,
+        hints: result24,
       });
     }
     obj.registerNode({
@@ -177,8 +251,16 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
       repository: variant5,
       tags: result7,
       arguments: result15,
-      inputs: result19,
-      outputs: result23,
+      inputs: result20,
+      outputs: result25,
     });
+  };
+  if (!("canonical_abi" in imports)) imports["canonical_abi"] = {};
+  
+  const resources0 = new Slab();
+  imports.canonical_abi["resource_drop_tensor-hint"] = (i) => {
+    const val = resources0.remove(i);
+    if (obj.dropTensorHint)
+    obj.dropTensorHint(val);
   };
 }

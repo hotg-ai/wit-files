@@ -53,6 +53,45 @@ record tensor-metadata {
     ///
     /// The text may include markdown.
     description: option<string>,
+    /// Hints provided to the runtime to let it reason about this tensor.
+    hints: list<tensor-hint>,
+}
+
+/// Hints that can be used by the runtime when inspecting a tensor.
+resource tensor-hint
+
+/// Hint to the runtime that a tensor may be displayed as an image.
+interpret-as-image: function() -> tensor-hint
+
+/// Hint to the runtime that a tensor may be interpreted as an audio clip.
+interpret-as-audio: function() -> tensor-hint
+
+/// Hint that a tensor may have a particular shape.
+example-shape: function(element-type: element-type, dimensions: dimensions) -> tensor-hint
+
+/// The various types of values a tensor may contain.
+enum element-type {
+    uint8,
+    uintint8,
+    uint16,
+    uintint16,
+    uint32,
+    uintint32,
+    float32,
+    uint64,
+    uintint64,
+    float64,
+}
+
+/// The dimensions that a tensor may have.
+variant dimensions {
+    /// There can be an arbitrary number of dimensions with arbitrary sizes.
+    dynamic,
+    /// The tensor has a fixed rank with the provided dimension sizes.
+    ///
+    /// If a particular dimension's length is zero, that is interpreted as the
+    /// dimension being allowed to have any arbitrary length.
+    fixed(list<u32>),
 }
 
 /// Register a node type with the runtime.

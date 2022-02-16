@@ -9,7 +9,7 @@
   "homepage": "https://hotg.dev/",
   "license": "MIT",
   "scripts": {
-    "generate-bindings": "wit-bindgen js --export ../runtime-v1.wit --import ../rune-v1.wit --out-dir .",
+    "generate-bindings": "wit-bindgen js --export ../runtime-v1.wit --import ../rune-v1.wit --out-dir ./bindings",
     "build": "tsc"
   },
   "files": [
