@@ -1,13 +1,21 @@
 {
   "name": "example",
-  "main": "index.ts",
   "license": "MIT",
   "type": "module",
+  "scripts": {
+    "start": "parcel serve index.html",
+    "build": "parcel index.html"
+  },
   "dependencies": {
-    "@hotg-ai/rune-wit-files": "../rune/js-host"
+    "@hotg-ai/rune-wit-files": "../rune/js-host",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@types/node": "^17.0.18",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
+    "parcel": "^2.3.1",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   }
