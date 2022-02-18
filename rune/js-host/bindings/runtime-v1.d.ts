@@ -9,14 +9,14 @@ export enum TypeHint {
 */
 export enum ElementType {
   Uint8 = 0,
-  Uintint8 = 1,
+  Int8 = 1,
   Uint16 = 2,
-  Uintint16 = 3,
+  Int16 = 3,
   Uint32 = 4,
-  Uintint32 = 5,
+  Int32 = 5,
   Float32 = 6,
   Uint64 = 7,
-  Uintint64 = 8,
+  Int64 = 8,
   Float64 = 9,
 }
 /**
@@ -63,6 +63,9 @@ export interface RuntimeV1 {
   interpretAsAudio(): TensorHint;
   /**
   * Hint that a tensor may have a particular shape.
+  * 
+  * Note: This hint will be removed in the future in favour of a more flexible
+  * mechanism.
   */
   exampleShape(elementType: ElementType, dimensions: Dimensions): TensorHint;
   /**
