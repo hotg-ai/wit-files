@@ -30,6 +30,8 @@ export const ElementType = Object.freeze({
   "Int64": 8,
   9: "Float64",
   "Float64": 9,
+  10: "Utf8",
+  "Utf8": 10,
 });
 export function addRuntimeV1ToImports(imports, obj, get_export) {
   if (!("runtime-v1" in imports)) imports["runtime-v1"] = {};
@@ -113,6 +115,12 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ptr0 = arg1;
     const len0 = arg2;
     resources0.get(arg0).setRepository(UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr0, len0)));
+  };
+  imports["runtime-v1"]["metadata::set-homepage"] = function(arg0, arg1, arg2) {
+    const memory = get_export("memory");
+    const ptr0 = arg1;
+    const len0 = arg2;
+    resources0.get(arg0).setHomepage(UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr0, len0)));
   };
   imports["runtime-v1"]["metadata::add-tag"] = function(arg0, arg1, arg2) {
     const memory = get_export("memory");

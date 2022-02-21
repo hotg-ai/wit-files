@@ -1,3 +1,6 @@
+/**
+* The format an argument's value may be in.
+*/
 export enum TypeHint {
   Integer = 0,
   Float = 1,
@@ -18,6 +21,10 @@ export enum ElementType {
   Uint64 = 7,
   Int64 = 8,
   Float64 = 9,
+  /**
+  * A string as UTF-8 encoded bytes.
+  */
+  Utf8 = 10,
 }
 /**
 * The dimensions that a tensor may have.
@@ -43,6 +50,10 @@ export function addRuntimeV1ToImports(imports: any, obj: RuntimeV1, get_export: 
 export interface RuntimeV1 {
   /**
   * Create a new metadata object with the provided name and version number.
+  * 
+  * The name should typically be one or two words that concisely describe
+  * the node and will be used as the human-friendly label shown to users
+  * when referring to it.
   */
   metadataNew(name: string, version: string): Metadata;
   /**
@@ -86,9 +97,16 @@ export interface Metadata {
   */
   setDescription(description: string): void;
   /**
-  * The source repository containing this node.
+  * A repository containing this node's source code.
   */
   setRepository(url: string): void;
+  /**
+  * The node's home page.
+  * 
+  * This will typically point to a `README` file or a page on the internet
+  * that users can go to when they want to find out more about the node.
+  */
+  setHomepage(url: string): void;
   /**
   * Associate this node with a particular tag.
   * 
