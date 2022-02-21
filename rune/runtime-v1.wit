@@ -3,13 +3,22 @@
 /// Metadata describing a single node in the Machine Learning pipeline.
 resource metadata {
     /// Create a new metadata object with the provided name and version number.
+    ///
+    /// The name should typically be one or two words that concisely describe
+    /// the node and will be used as the human-friendly label shown to users
+    /// when referring to it.
     static new: function(name: string, version: string) -> metadata
     /// A human-friendly description of the node.
     ///
     /// The text may include markdown.
     set-description: function(description: string)
-    /// The source repository containing this node.
+    /// A repository containing this node's source code.
     set-repository: function(url: string)
+    /// The node's home page.
+    ///
+    /// This will typically point to a `README` file or a page on the internet
+    /// that users can go to when they want to find out more about the node.
+    set-homepage: function(url: string)
     /// Associate this node with a particular tag.
     ///
     /// Tags are typically used to assist in search and filtering.
@@ -36,6 +45,7 @@ resource argument-metadata {
     set-type-hint: function (hint: type-hint)
 }
 
+/// The format an argument's value may be in.
 enum type-hint {
     integer,
     float,
@@ -84,6 +94,8 @@ enum element-type {
     uint64,
     int64,
     float64,
+    /// A string as UTF-8 encoded bytes.
+    utf8,
 }
 
 /// The dimensions that a tensor may have.
