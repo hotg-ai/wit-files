@@ -66,7 +66,7 @@ export class RuneV1 {
   imports?: any,
   ): Promise<void>;
   /**
-  * A function called on startup.
+  * A function called when the module is first loaded.
   */
   start(): void;
 }

@@ -1,4 +1,4 @@
-import { UTF8_DECODER, Slab } from './intrinsics.js';
+import { data_view, UTF8_DECODER, Slab } from './intrinsics.js';
 export const TypeHint = Object.freeze({
   0: "Integer",
   "Integer": 0,
@@ -64,32 +64,39 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ret = obj.interpretAsAudio();
     return resources3.insert(ret);
   };
-  imports["runtime-v1"]["example-shape"] = function(arg0, arg1, arg2, arg3) {
+  imports["runtime-v1"]["supported-shapes"] = function(arg0, arg1, arg2, arg3, arg4) {
     const memory = get_export("memory");
-    const tag0 = arg0;
-    if (!(tag0 in ElementType))
-    throw new RangeError("invalid discriminant specified for ElementType");
-    let variant2;
-    switch (arg1) {
+    const len1 = arg1;
+    const base1 = arg0;
+    const result1 = [];
+    for (let i = 0; i < len1; i++) {
+      const base = base1 + i * 1;
+      const tag0 = data_view(memory).getUint8(base + 0, true);
+      if (!(tag0 in ElementType))
+      throw new RangeError("invalid discriminant specified for ElementType");
+      result1.push(tag0);
+    }
+    let variant3;
+    switch (arg2) {
       case 0: {
-        variant2 = {
+        variant3 = {
           tag: "dynamic",
         };
         break;
       }
       case 1: {
-        const ptr1 = arg2;
-        const len1 = arg3;
-        variant2 = {
+        const ptr2 = arg3;
+        const len2 = arg4;
+        variant3 = {
           tag: "fixed",
-          val: new Uint32Array(memory.buffer.slice(ptr1, ptr1 + len1 * 4)),
+          val: new Uint32Array(memory.buffer.slice(ptr2, ptr2 + len2 * 4)),
         };
         break;
       }
       default:
       throw new RangeError("invalid variant discriminant for Dimensions");
     }
-    const ret = obj.exampleShape(tag0, variant2);
+    const ret = obj.supportedShapes(result1, variant3);
     return resources3.insert(ret);
   };
   imports["runtime-v1"]["register-node"] = function(arg0) {

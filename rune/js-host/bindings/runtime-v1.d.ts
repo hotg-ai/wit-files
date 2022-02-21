@@ -62,12 +62,13 @@ export interface RuntimeV1 {
   */
   interpretAsAudio(): TensorHint;
   /**
-  * Hint that a tensor may have a particular shape.
+  * Hint that a tensor may have a particular shape and the element types it
+  * supports.
   * 
   * Note: This hint will be removed in the future in favour of a more flexible
   * mechanism.
   */
-  exampleShape(elementType: ElementType, dimensions: Dimensions): TensorHint;
+  supportedShapes(supportedElementType: ElementType[], dimensions: Dimensions): TensorHint;
   /**
   * Register a node type with the runtime.
   */
