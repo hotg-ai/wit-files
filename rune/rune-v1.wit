@@ -1,5 +1,4 @@
 //! Functions and types exposed by the Rune.
 
-
-/// A function called on startup.
+/// A function called when the module is first loaded.
 start: function()

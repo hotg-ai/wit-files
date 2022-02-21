@@ -65,11 +65,12 @@ interpret-as-image: function() -> tensor-hint
 /// Hint to the runtime that a tensor may be interpreted as an audio clip.
 interpret-as-audio: function() -> tensor-hint
 
-/// Hint that a tensor may have a particular shape.
+/// Hint that a tensor may have a particular shape and the element types it
+/// supports.
 ///
 /// Note: This hint will be removed in the future in favour of a more flexible
 /// mechanism.
-example-shape: function(element-type: element-type, dimensions: dimensions) -> tensor-hint
+supported-shapes: function(supported-element-type: list<element-type>, dimensions: dimensions) -> tensor-hint
 
 /// The various types of values a tensor may contain.
 enum element-type {
