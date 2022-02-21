@@ -70,7 +70,7 @@ interpret-as-audio: function() -> tensor-hint
 ///
 /// Note: This hint will be removed in the future in favour of a more flexible
 /// mechanism.
-supported-shapes: function(supported-element-type: list<element-type>, dimensions: dimensions) -> tensor-hint
+supported-shapes: function(supported-element-types: list<element-type>, dimensions: dimensions) -> tensor-hint
 
 /// The various types of values a tensor may contain.
 enum element-type {

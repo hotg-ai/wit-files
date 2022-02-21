@@ -68,7 +68,7 @@ export interface RuntimeV1 {
   * Note: This hint will be removed in the future in favour of a more flexible
   * mechanism.
   */
-  supportedShapes(supportedElementType: ElementType[], dimensions: Dimensions): TensorHint;
+  supportedShapes(supportedElementTypes: ElementType[], dimensions: Dimensions): TensorHint;
   /**
   * Register a node type with the runtime.
   */
