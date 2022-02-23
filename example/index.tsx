@@ -83,8 +83,8 @@ type MediaHint = {
     media: "audio" | "image";
 };
 type ExampleShapeHint = {
-    type: "example-shape";
-    elementType: ElementType;
+    type: "supported-shape";
+    supportedElementTypes: ElementType[];
     dimensions: Dimensions;
 }
 
@@ -95,6 +95,7 @@ class ProcBlockMetadata implements Metadata {
     version: string;
     description?: string;
     repository?: string;
+    homepage?: string;
     tags: string[] = [];
     arguments: Argument[] = [];
     inputs: Tensor[] = [];
@@ -103,6 +104,10 @@ class ProcBlockMetadata implements Metadata {
     constructor(name: string, version: string) {
         this.name = name;
         this.version = version;
+    }
+
+    setHomepage(url: string) {
+        this.homepage = url;
     }
 
     setDescription(description: string) {
@@ -142,6 +147,7 @@ class ProcBlockMetadata implements Metadata {
 
 class Runtime implements RuntimeV1 {
     metadata?: ProcBlockMetadata;
+
     metadataNew(name: string, version: string): ProcBlockMetadata {
         return new ProcBlockMetadata(name, version);
     }
@@ -162,10 +168,10 @@ class Runtime implements RuntimeV1 {
         return { type: "interpret-as", media: "audio" };
     }
 
-    exampleShape(elementType: ElementType, dimensions: Dimensions): Hint {
+    supportedShapes(supportedElementTypes: ElementType[], dimensions: Dimensions): Hint {
         return {
-            type: "example-shape",
-            elementType,
+            type: "supported-shape",
+            supportedElementTypes,
             dimensions,
         };
     }

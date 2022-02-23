@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "parcel serve index.html",
-    "build": "parcel index.html"
+    "build": "parcel build index.html"
   },
   "dependencies": {
     "@hotg-ai/rune-wit-files": "../rune/js-host",
