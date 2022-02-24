@@ -1,7 +1,7 @@
 {
   "name": "@hotg-ai/rune-wit-files",
   "version": "0.2.4",
-  "type": "module",
+  "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
@@ -11,7 +11,7 @@
   "scripts": {
     "generate-bindings": "wit-bindgen js --export ../runtime-v1.wit --import ../rune-v1.wit --out-dir ./bindings",
     "watch": "parcel watch",
-    "build": "parcel build"
+    "build": "yarn generate-bindings && parcel build && cat bindings/*.d.ts > dist/index.d.ts"
   },
   "devDependencies": {
     "@parcel/packager-ts": "2.3.2",
