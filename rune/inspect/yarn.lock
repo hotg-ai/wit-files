@@ -35,8 +35,8 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@hotg-ai/rune-wit-files@../rune/js-host":
-  version "0.1.0"
+"@hotg-ai/rune-wit-files@../js":
+  version "0.2.5"
 
 "@parcel/bundler-default@2.3.1":
   version "2.3.1"
