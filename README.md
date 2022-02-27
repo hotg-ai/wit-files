@@ -3,7 +3,7 @@
 This repository contains the various WebAssembly Interface Types files used by
 the Rune project.
 
-## Getting Started
+## Getting Started (Rune)
 
 The underlying idea behind WIT is that an API author will use a `*.wit` file to
 define the interface for how a WebAssembly module will interact with the outside
@@ -58,52 +58,82 @@ impl rune_v1::RuneV1 for Exports { ... }
 
 ### JavaScript Host
 
-JavaScript doesn't use macros, so the code for loading a WebAssembly needs to
-be generated using `wit-bindgen`.
+We've published a JavaScript package to NPM called `@hotg-ai/rune-wit-files`
+which contains the generated bindings for loading a WebAssembly module. The
+package's source code is available in the `rune/js/` folder.
 
-Using the `rune` example from before, our JavaScript host provides the
-`runtime-v1.wit` interface and consumes the `rune-v1.wit` interface exposed by
-the WebAssembly module.
+The package's `yarn build` script will automatically generate any necessary glue
+code and compile it to a single bundle that can be published to NPM.
+
+Under the hood, this script will first run the `wit-bindgen` CLI...
 
 ```console
-$ wit-bindgen js --export rune/runtime-v1.wit --import rune/rune-v1.wit --out-dir rune/js-host/
-Generating "rune/js-host/intrinsics.js"
-Generating "rune/js-host/rune-v1.d.ts"
-Generating "rune/js-host/rune-v1.js"
-Generating "rune/js-host/runtime-v1.d.ts"
-Generating "rune/js-host/runtime-v1.js"
+$ cd rune/js/
+$ wit-bindgen js --export ../runtime-v1.wit --import ../rune-v1.wit --out-dir ./bindings
+Generating "bindings/intrinsics.js"
+Generating "bindings/rune-v1.d.ts"
+Generating "bindings/rune-v1.js"
+Generating "bindings/runtime-v1.d.ts"
+Generating "bindings/runtime-v1.js"
 ```
 
-These files can be packaged and published to NPM as-is, although you might want
-to create an `index.js` that re-exports everything from a single file.
-
-To see how the generated bindings would be used in practice, check out the
-script under `example/index.ts`.
-
-It can be executed using the following:
+Next, it uses Parcel to generate a single release bundle...
 
 ```console
-$ cd examples
+$ ./node_modules/.bin/parcel build
+✨ Built in 818ms
+
+dist/index.js      11.12 KB    20ms
+dist/index.d.ts       114 B     8ms
+Done in 1.02s.
+
+$ tree dist
+dist
+├── index.d.ts
+├── index.d.ts.map
+├── index.js
+└── index.js.map
+
+0 directories, 4 files
+```
+
+Finally, because Parcel doesn't generate a single typings file when from the
+multiple generated `*.d.ts` files, we create the typings file ourselves by
+concatenating each of the generated typings files.
+
+```console
+$ cat bindings/*.d.ts > dist/index.d.ts
+```
+
+### The Inspection App
+
+To make inspecting metadata a bit easier, we've created a React app that lets
+you upload a WebAssembly binary and extract its metadata.
+
+You build this app similar to most React apps.
+
+```console
+$ cd rune/inspect/
 $ yarn
-$ node --loader ts-node/esm ./index.ts ~/Documents/hotg-ai/proc-blocks/argmax.wasm
-[Registered Metadata] {
-  name: 'argmax',
-  version: '0.11.2',
-  description: '',
-  repository: '',
-  tags: [],
-  arguments: [],
-  inputs: [ { name: 'input', description: null } ],
-  outputs: [
-    {
-      name: 'max',
-      description: 'The index of the element with the highest value'
-    }
-  ]
-}
+yarn install v1.22.17
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+Done in 1.66s.
+$ yarn start
+yarn run v1.22.17
+$ parcel serve index.html
+Server running at http://localhost:1234
+✨ Built in 397ms
 ```
 
-(note: this assumes you have already compiled the arg max proc-block to
-WebAssembly)
+> **Note:** if you see errors saying `@hotg-ai/rune-wit-files` couldn't be
+> imported, you may need to build the JavaScript bindings first.
+>
+> ```console
+> $ cd rune/js/ && yarn && yarn build
+> ```
+
 
 [wit]: https://github.com/bytecodealliance/wit-bindgen

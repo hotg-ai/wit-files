@@ -7,7 +7,7 @@
     "build": "parcel build index.html"
   },
   "dependencies": {
-    "@hotg-ai/rune-wit-files": "../rune/js-host",
+    "@hotg-ai/rune-wit-files": "../js",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
