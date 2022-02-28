@@ -101,6 +101,10 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ret = obj.supportedShapes(result1, variant3);
     return resources3.insert(ret);
   };
+  imports["runtime-v1"]["interpret-as-number-in-range"] = function(arg0, arg1) {
+    const ret = obj.interpretAsNumberInRange(arg0, arg1);
+    return resources4.insert(ret);
+  };
   imports["runtime-v1"]["register-node"] = function(arg0) {
     obj.registerNode(resources0.get(arg0));
   };
@@ -155,6 +159,9 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     throw new RangeError("invalid discriminant specified for TypeHint");
     resources1.get(arg0).setTypeHint(tag0);
   };
+  imports["runtime-v1"]["argument-metadata::add-hint"] = function(arg0, arg1) {
+    resources1.get(arg0).addHint(resources4.get(arg1));
+  };
   imports["runtime-v1"]["tensor-metadata::set-description"] = function(arg0, arg1, arg2) {
     const memory = get_export("memory");
     const ptr0 = arg1;
@@ -192,5 +199,12 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const val = resources3.remove(i);
     if (obj.dropTensorHint)
     obj.dropTensorHint(val);
+  };
+  
+  const resources4 = new Slab();
+  imports.canonical_abi["resource_drop_argument-hint"] = (i) => {
+    const val = resources4.remove(i);
+    if (obj.dropArgumentHint)
+    obj.dropArgumentHint(val);
   };
 }

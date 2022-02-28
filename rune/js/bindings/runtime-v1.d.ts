@@ -81,6 +81,10 @@ export interface RuntimeV1 {
   */
   supportedShapes(supportedElementTypes: ElementType[], dimensions: Dimensions): TensorHint;
   /**
+  * Hint to the runtime that an argument may be interpreted as a number in `[min, max]`
+  */
+  interpretAsNumberInRange(min: number, max: number): ArgumentHint;
+  /**
   * Register a node type with the runtime.
   */
   registerNode(metadata: Metadata): void;
@@ -88,6 +92,7 @@ export interface RuntimeV1 {
   dropArgumentMetadata?: (val: ArgumentMetadata) => void;
   dropTensorMetadata?: (val: TensorMetadata) => void;
   dropTensorHint?: (val: TensorHint) => void;
+  dropArgumentHint?: (val: ArgumentHint) => void;
 }
 export interface Metadata {
   /**
@@ -141,6 +146,7 @@ export interface ArgumentMetadata {
   * A hint about what type this argument may contain.
   */
   setTypeHint(hint: TypeHint): void;
+  addHint(hint: ArgumentHint): void;
 }
 export interface TensorMetadata {
   /**
@@ -156,4 +162,6 @@ export interface TensorMetadata {
   addHint(hint: TensorHint): void;
 }
 export interface TensorHint {
+}
+export interface ArgumentHint {
 }

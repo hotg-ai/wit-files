@@ -43,6 +43,8 @@ resource argument-metadata {
     set-default-value: function(default-value: string)
     /// A hint about what type this argument may contain.
     set-type-hint: function (hint: type-hint)
+
+    add-hint: function (hint: argument-hint)
 }
 
 /// The format an argument's value may be in.
@@ -81,6 +83,11 @@ interpret-as-audio: function() -> tensor-hint
 /// Note: This hint will be removed in the future in favour of a more flexible
 /// mechanism.
 supported-shapes: function(supported-element-types: list<element-type>, dimensions: dimensions) -> tensor-hint
+
+/// Hints that can be used by the runtime when inspecting an argument
+resource argument-hint
+/// Hint to the runtime that an argument may be interpreted as a number in `[min, max]`
+interpret-as-number-in-range: function(min: f64, max: f64) -> argument-hint
 
 /// The various types of values a tensor may contain.
 enum element-type {
