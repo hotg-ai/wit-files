@@ -46,6 +46,10 @@ export interface DimensionsFixed {
   tag: "fixed",
   val: Uint32Array,
 }
+/**
+* A convenient type for the number formats we may encounter
+*/
+export type NumberTypes = [number, number, number, bigint, number, number, number, bigint, number, number];
 export function addRuntimeV1ToImports(imports: any, obj: RuntimeV1, get_export: (name: string) => WebAssembly.ExportValue): void;
 export interface RuntimeV1 {
   /**
@@ -83,7 +87,11 @@ export interface RuntimeV1 {
   /**
   * Hint to the runtime that an argument may be interpreted as a number in `[min, max]`
   */
-  interpretAsNumberInRange(min: number, max: number): ArgumentHint;
+  interpretAsNumberInRange(min: NumberTypes, max: NumberTypes): ArgumentHint;
+  /**
+  * Hint to the runtime that an argument may be interpreted as a string in a defined list
+  */
+  interpretAsStringInEnum(stringEnum: string[]): ArgumentHint;
   /**
   * Register a node type with the runtime.
   */
