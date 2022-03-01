@@ -115,9 +115,7 @@ variant dimensions {
 /// Hints that can be used by the runtime when inspecting an argument
 resource argument-hint
 /// Hint to the runtime that an argument may be interpreted as a number in `[min, max]`
-interpret-as-u64-in-range: function(min: u64, max: u64) -> argument-hint
-interpret-as-s64-in-range: function(min: s64, max: s64) -> argument-hint
-interpret-as-f64-in-range: function(min: f64, max: f64) -> argument-hint
+interpret-as-number-in-range: function(min: string, max: string) -> argument-hint
 /// Hint to the runtime that an argument may be interpreted as a string in a defined list
 interpret-as-string-in-enum: function(string-enum: list<string>) -> argument-hint
 
