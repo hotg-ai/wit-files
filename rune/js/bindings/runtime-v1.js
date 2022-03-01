@@ -1,4 +1,4 @@
-import { clamp_guest, data_view, UTF8_DECODER, Slab } from './intrinsics.js';
+import { data_view, UTF8_DECODER, Slab } from './intrinsics.js';
 export const TypeHint = Object.freeze({
   0: "Integer",
   "Integer": 0,
@@ -101,8 +101,16 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ret = obj.supportedShapes(result1, variant3);
     return resources3.insert(ret);
   };
-  imports["runtime-v1"]["interpret-as-number-in-range"] = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19) {
-    const ret = obj.interpretAsNumberInRange([clamp_guest(arg0, 0, 255), clamp_guest(arg1, 0, 65535), arg2 >>> 0, BigInt.asUintN(64, arg3), clamp_guest(arg4, -128, 127), clamp_guest(arg5, -32768, 32767), arg6, arg7, arg8, arg9], [clamp_guest(arg10, 0, 255), clamp_guest(arg11, 0, 65535), arg12 >>> 0, BigInt.asUintN(64, arg13), clamp_guest(arg14, -128, 127), clamp_guest(arg15, -32768, 32767), arg16, arg17, arg18, arg19]);
+  imports["runtime-v1"]["interpret-as-u64-in-range"] = function(arg0, arg1) {
+    const ret = obj.interpretAsU64InRange(BigInt.asUintN(64, arg0), BigInt.asUintN(64, arg1));
+    return resources4.insert(ret);
+  };
+  imports["runtime-v1"]["interpret-as-s64-in-range"] = function(arg0, arg1) {
+    const ret = obj.interpretAsS64InRange(arg0, arg1);
+    return resources4.insert(ret);
+  };
+  imports["runtime-v1"]["interpret-as-f64-in-range"] = function(arg0, arg1) {
+    const ret = obj.interpretAsF64InRange(arg0, arg1);
     return resources4.insert(ret);
   };
   imports["runtime-v1"]["interpret-as-string-in-enum"] = function(arg0, arg1) {

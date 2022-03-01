@@ -115,11 +115,11 @@ variant dimensions {
 /// Hints that can be used by the runtime when inspecting an argument
 resource argument-hint
 /// Hint to the runtime that an argument may be interpreted as a number in `[min, max]`
-interpret-as-number-in-range: function(min: number-types, max: number-types) -> argument-hint
+interpret-as-u64-in-range: function(min: u64, max: u64) -> argument-hint
+interpret-as-s64-in-range: function(min: s64, max: s64) -> argument-hint
+interpret-as-f64-in-range: function(min: f64, max: f64) -> argument-hint
 /// Hint to the runtime that an argument may be interpreted as a string in a defined list
 interpret-as-string-in-enum: function(string-enum: list<string>) -> argument-hint
-/// A convenient type for the number formats we may encounter
-type number-types = tuple<u8, u16, u32, u64, s8, s16, s32, s64, f32, f64>
 
 /// Register a node type with the runtime.
 register-node: function(metadata: metadata)

@@ -1,9 +1,4 @@
 
-export function clamp_guest(i, min, max) {
-  if (i < min || i > max) throw new RangeError(`must be between ${min} and ${max}`);
-  return i;
-}
-
 let DATA_VIEW = new DataView(new ArrayBuffer());
 
 export function data_view(mem) {
