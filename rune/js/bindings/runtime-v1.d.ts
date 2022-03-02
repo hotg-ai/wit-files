@@ -83,9 +83,7 @@ export interface RuntimeV1 {
   /**
   * Hint to the runtime that an argument may be interpreted as a number in `[min, max]`
   */
-  interpretAsU64InRange(min: bigint, max: bigint): ArgumentHint;
-  interpretAsS64InRange(min: bigint, max: bigint): ArgumentHint;
-  interpretAsF64InRange(min: number, max: number): ArgumentHint;
+  interpretAsNumberInRange(min: string, max: string): ArgumentHint;
   /**
   * Hint to the runtime that an argument may be interpreted as a string in a defined list
   */

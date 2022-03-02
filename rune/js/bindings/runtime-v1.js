@@ -101,16 +101,13 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ret = obj.supportedShapes(result1, variant3);
     return resources3.insert(ret);
   };
-  imports["runtime-v1"]["interpret-as-u64-in-range"] = function(arg0, arg1) {
-    const ret = obj.interpretAsU64InRange(BigInt.asUintN(64, arg0), BigInt.asUintN(64, arg1));
-    return resources4.insert(ret);
-  };
-  imports["runtime-v1"]["interpret-as-s64-in-range"] = function(arg0, arg1) {
-    const ret = obj.interpretAsS64InRange(arg0, arg1);
-    return resources4.insert(ret);
-  };
-  imports["runtime-v1"]["interpret-as-f64-in-range"] = function(arg0, arg1) {
-    const ret = obj.interpretAsF64InRange(arg0, arg1);
+  imports["runtime-v1"]["interpret-as-number-in-range"] = function(arg0, arg1, arg2, arg3) {
+    const memory = get_export("memory");
+    const ptr0 = arg0;
+    const len0 = arg1;
+    const ptr1 = arg2;
+    const len1 = arg3;
+    const ret = obj.interpretAsNumberInRange(UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr0, len0)), UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr1, len1)));
     return resources4.insert(ret);
   };
   imports["runtime-v1"]["interpret-as-string-in-enum"] = function(arg0, arg1) {
