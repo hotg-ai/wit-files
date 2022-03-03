@@ -46,6 +46,7 @@ resource argument-metadata {
 
 /// The format an argument's value may be in.
 enum type-hint {
+    unsigned-integer,
     integer,
     float,
     oneline-string,
