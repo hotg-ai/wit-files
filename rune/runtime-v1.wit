@@ -41,9 +41,6 @@ resource argument-metadata {
     set-description: function(description: string)
     /// A useful default value for this argument.
     set-default-value: function(default-value: string)
-    /// A hint about what type this argument may contain.
-    set-type-hint: function (hint: type-hint)
-
     add-hint: function (hint: argument-hint)
 }
 
