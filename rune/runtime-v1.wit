@@ -116,6 +116,8 @@ resource argument-hint
 interpret-as-number-in-range: function(min: string, max: string) -> argument-hint
 /// Hint to the runtime that an argument may be interpreted as a string in a defined list
 interpret-as-string-in-enum: function(string-enum: list<string>) -> argument-hint
+/// Hint to the runtime that an argument may be interpreted as a non-negative number
+non-negative-number: function() -> argument-hint
 
 /// Register a node type with the runtime.
 register-node: function(metadata: metadata)
