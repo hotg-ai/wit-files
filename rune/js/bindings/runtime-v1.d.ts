@@ -2,10 +2,11 @@
 * The format an argument's value may be in.
 */
 export enum TypeHint {
-  Integer = 0,
-  Float = 1,
-  OnelineString = 2,
-  MultilineString = 3,
+  UnsignedInteger = 0,
+  Integer = 1,
+  Float = 2,
+  OnelineString = 3,
+  MultilineString = 4,
 }
 /**
 * The various types of values a tensor may contain.
@@ -89,6 +90,10 @@ export interface RuntimeV1 {
   */
   interpretAsStringInEnum(stringEnum: string[]): ArgumentHint;
   /**
+  * Hint to the runtime that an argument may be interpreted as a non-negative number
+  */
+  nonNegativeNumber(): ArgumentHint;
+  /**
   * Register a node type with the runtime.
   */
   registerNode(metadata: Metadata): void;
@@ -146,10 +151,6 @@ export interface ArgumentMetadata {
   * A useful default value for this argument.
   */
   setDefaultValue(defaultValue: string): void;
-  /**
-  * A hint about what type this argument may contain.
-  */
-  setTypeHint(hint: TypeHint): void;
   addHint(hint: ArgumentHint): void;
 }
 export interface TensorMetadata {

@@ -1,13 +1,15 @@
 import { data_view, UTF8_DECODER, Slab } from './intrinsics.js';
 export const TypeHint = Object.freeze({
-  0: "Integer",
-  "Integer": 0,
-  1: "Float",
-  "Float": 1,
-  2: "OnelineString",
-  "OnelineString": 2,
-  3: "MultilineString",
-  "MultilineString": 3,
+  0: "UnsignedInteger",
+  "UnsignedInteger": 0,
+  1: "Integer",
+  "Integer": 1,
+  2: "Float",
+  "Float": 2,
+  3: "OnelineString",
+  "OnelineString": 3,
+  4: "MultilineString",
+  "MultilineString": 4,
 });
 export const ElementType = Object.freeze({
   0: "Uint8",
@@ -124,6 +126,10 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ret = obj.interpretAsStringInEnum(result1);
     return resources4.insert(ret);
   };
+  imports["runtime-v1"]["non-negative-number"] = function() {
+    const ret = obj.nonNegativeNumber();
+    return resources4.insert(ret);
+  };
   imports["runtime-v1"]["register-node"] = function(arg0) {
     obj.registerNode(resources0.get(arg0));
   };
@@ -171,12 +177,6 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ptr0 = arg1;
     const len0 = arg2;
     resources1.get(arg0).setDefaultValue(UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr0, len0)));
-  };
-  imports["runtime-v1"]["argument-metadata::set-type-hint"] = function(arg0, arg1) {
-    const tag0 = arg1;
-    if (!(tag0 in TypeHint))
-    throw new RangeError("invalid discriminant specified for TypeHint");
-    resources1.get(arg0).setTypeHint(tag0);
   };
   imports["runtime-v1"]["argument-metadata::add-hint"] = function(arg0, arg1) {
     resources1.get(arg0).addHint(resources4.get(arg1));
