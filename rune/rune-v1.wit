@@ -1,4 +1,36 @@
 //! Functions and types exposed by the Rune.
 
+use { graph-context, kernel-context } from runtime-v1
+
 /// A function called when the module is first loaded.
 start: function()
+
+/// A function that is called by the compiler/Forge while constructing the ML
+/// pipeline to find out this node's inputs and outputs.
+graph: function(ctx: graph-context) -> expected<_, graph-error>
+
+/// The function called when doing inference.
+kernel: function(ctx: kernel-context) -> expected<_, kernel-error>
+
+variant graph-error {
+    invalid-argument(invalid-argument),
+    other(string),
+}
+
+record invalid-argument {
+    name: string,
+    reason: bad-argument-reason,
+}
+
+/// The reason error is of type string that is thrown by the
+/// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
+variant bad-argument-reason {
+    not-found,
+    invalid-value(string),
+    other(string),
+}
+
+variant kernel-error {
+    invalid-argument(invalid-argument),
+    other(string),
+}

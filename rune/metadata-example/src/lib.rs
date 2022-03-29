@@ -1,7 +1,7 @@
 use runtime_v1::*;
 
-wit_bindgen_rust::import!("$CARGO_MANIFEST_DIR/../runtime-v1.wit");
-wit_bindgen_rust::export!("$CARGO_MANIFEST_DIR/../rune-v1.wit");
+wit_bindgen_rust::import!("../runtime-v1.wit");
+wit_bindgen_rust::export!("../rune-v1.wit");
 
 pub struct RuneV1;
 

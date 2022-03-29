@@ -121,3 +121,30 @@ non-negative-number: function() -> argument-hint
 
 /// Register a node type with the runtime.
 register-node: function(metadata: metadata)
+
+/// Contextual information used when determining the ML / Data Processing pipeline.
+/// This is defined by the runtime but available for logic within the container (rune)
+resource graph-context {
+    // Name of the argument and returns the value of the argument
+    // Analogy: Getting an environment variable docker container
+    get-argument: function(name: string) -> option<string>
+    add-input: function(input: shape)
+    add-output: function(output: shape)
+}
+
+resource kernel-context {
+    get-argument: function(name: string) -> option<string>
+    get-input-tensor: function(name: string) -> option<tensor>
+    set-output-tensor: function(name: string, shape: shape, buffer: pull-buffer<u8>)
+}
+
+/// The shape of a concrete tensor.
+record shape {
+    element-type: element-type,
+    dimensions: dimensions,
+}
+
+record tensor {
+    shape: shape,
+    buffer: list<u8>,
+}

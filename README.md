@@ -1,7 +1,7 @@
 # Rune WIT Files
 
-This repository contains the various WebAssembly Interface Types files used by
-the Rune project.
+This repository contains the various [WebAssembly Interface Types][wit-format]
+files used by the Rune project.
 
 ## Getting Started (Rune)
 
@@ -137,3 +137,4 @@ Server running at http://localhost:1234
 
 
 [wit]: https://github.com/bytecodealliance/wit-bindgen
+[wit-format]: https://github.com/bytecodealliance/wit-bindgen/blob/main/WIT.md
