@@ -34,7 +34,6 @@ mod runtime_v1 {
         }
     }
     /// The dimensions that a tensor may have.
-    #[derive(Clone)]
     pub enum Dimensions<'a> {
         /// There can be an arbitrary number of dimensions with arbitrary sizes.
         Dynamic,
@@ -52,6 +51,7 @@ mod runtime_v1 {
             }
         }
     }
+    /// A tensor with fixed dimensions.
     #[derive(Clone)]
     pub struct TensorParam<'a> {
         pub dimensions: &'a [u32],
@@ -65,6 +65,7 @@ mod runtime_v1 {
                 .finish()
         }
     }
+    /// A tensor with fixed dimensions.
     #[derive(Clone)]
     pub struct TensorResult {
         pub dimensions: Vec<u32>,
@@ -78,6 +79,7 @@ mod runtime_v1 {
                 .finish()
         }
     }
+    /// The underlying data inside a tensor.
     #[derive(Clone)]
     pub enum TensorDataParam<'a> {
         U8(&'a [u8]),
@@ -111,6 +113,7 @@ mod runtime_v1 {
             }
         }
     }
+    /// The underlying data inside a tensor.
     #[derive(Clone)]
     pub enum TensorDataResult {
         U8(Vec<u8>),
@@ -160,7 +163,6 @@ mod runtime_v1 {
             }
         }
     }
-    /// ! Host functions provided by the proc-block prober.
     /// Metadata describing a single node in the Machine Learning pipeline.
     #[derive(Debug)]
     #[repr(transparent)]
@@ -1335,7 +1337,6 @@ mod runtime_v1 {
     static mut RET_AREA: [i64; 6] = [0; 6];
 }
 mod rune_v1 {
-    #[derive(Clone)]
     pub enum GraphError {
         InvalidArgument(InvalidArgument),
         Other(String),

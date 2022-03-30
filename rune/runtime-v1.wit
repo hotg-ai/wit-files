@@ -1,5 +1,3 @@
-//! Host functions provided by the proc-block prober.
-
 /// Metadata describing a single node in the Machine Learning pipeline.
 resource metadata {
     /// Create a new metadata object with the provided name and version number.
@@ -151,11 +149,13 @@ record shape {
     dimensions: dimensions,
 }
 
+/// A tensor with fixed dimensions.
 record tensor {
     dimensions: list<u32>,
     data: tensor-data,
 }
 
+/// The underlying data inside a tensor.
 variant tensor-data {
     "u8"(list<u8>),
     "i8"(list<s8>),
