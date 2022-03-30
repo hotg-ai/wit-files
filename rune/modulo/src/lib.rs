@@ -25,6 +25,7 @@ impl rune_v1::RuneV1 for RuneV1 {
         modulo.add_hint(&runtime_v1::non_negative_number());
         metadata.add_argument(&modulo);
         let element_type = ArgumentMetadata::new("element_type");
+        element_type.set_description("The type of tensor this proc-block will accept");
         element_type.set_default_value("f64");
         element_type.add_hint(&runtime_v1::interpret_as_string_in_enum(&[
             "u8", "i8", "u16", "i16", "u32", "i32", "f32", "u64", "i64", "f64",
@@ -81,6 +82,10 @@ impl rune_v1::RuneV1 for RuneV1 {
             dimensions: &dimensions,
             modulus,
         };
+
+        // Note: The "element_type" argument is only used while constructing the
+        // ML pipeline. We see its effect at runtime in the form of the tensor
+        // data variant that gets used.
 
         match data {
             TensorDataResult::U8(d) => m.evaluate(&d, |v| TensorDataParam::U8(v)),

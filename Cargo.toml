@@ -1,5 +1,5 @@
 [workspace]
-members = ["rune/metadata-example", "rune/modulo"]
+members = ["rune/modulo", "rune/wasmer-host"]
 
 # Note: Override wit-bindgen-rust with a temporary fix for
 # https://github.com/bytecodealliance/wit-bindgen/issues/159
