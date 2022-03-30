@@ -1,5 +1,5 @@
 diff --git a/rune/modulo/src/bindings.rs b/rune/modulo/src/bindings.rs
-index 1ca17b3..f3babeb 100644
+index 077987a..28c45c7 100644
 --- a/rune/modulo/src/bindings.rs
 +++ b/rune/modulo/src/bindings.rs
 @@ -34,6 +34,7 @@ mod runtime_v1 {
@@ -10,15 +10,31 @@ index 1ca17b3..f3babeb 100644
      pub enum Dimensions<'a> {
          /// There can be an arbitrary number of dimensions with arbitrary sizes.
          Dynamic,
-@@ -78,6 +79,7 @@ mod runtime_v1 {
+@@ -77,6 +78,7 @@ mod runtime_v1 {
                  .finish()
          }
      }
 +    #[derive(Clone)]
-     pub enum TensorData {
+     pub enum TensorDataParam<'a> {
+         U8(&'a [u8]),
+         I8(&'a [i8]),
+@@ -109,6 +111,7 @@ mod runtime_v1 {
+             }
+         }
+     }
++    #[derive(Clone)]
+     pub enum TensorDataResult {
          U8(Vec<u8>),
          I8(Vec<i8>),
-@@ -1226,6 +1228,7 @@ mod rune_v1 {
+@@ -1332,6 +1335,7 @@ mod runtime_v1 {
+     static mut RET_AREA: [i64; 6] = [0; 6];
+ }
+ mod rune_v1 {
++    #[derive(Clone)]
+     pub enum GraphError {
+         InvalidArgument(InvalidArgument),
+         Other(String),
+@@ -1362,6 +1366,7 @@ mod rune_v1 {
      }
      /// The reason error is of type string that is thrown by the
      /// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))

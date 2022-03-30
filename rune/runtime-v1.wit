@@ -127,14 +127,22 @@ resource graph-context {
     // Name of the argument and returns the value of the argument
     // Analogy: Getting an environment variable docker container
     get-argument: function(name: string) -> option<string>
-    add-input: function(input: shape)
-    add-output: function(output: shape)
+    add-input-tensor: function(
+        name: string,
+        element-type: element-type,
+        dimensions: dimensions,
+    )
+    add-output-tensor: function(
+        name: string,
+        element-type: element-type,
+        dimensions: dimensions,
+    )
 }
 
 resource kernel-context {
     get-argument: function(name: string) -> option<string>
     get-input-tensor: function(name: string) -> option<tensor>
-    set-output-tensor: function(name: string, shape: shape, buffer: pull-buffer<u8>)
+    set-output-tensor: function(name: string, tensor: tensor)
 }
 
 /// The shape of a concrete tensor.
