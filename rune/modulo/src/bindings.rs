@@ -3,39 +3,39 @@ mod runtime_v1 {
     #[repr(u8)]
     #[derive(Clone, Copy, PartialEq, Eq)]
     pub enum ElementType {
-        Uint8,
-        Int8,
-        Uint16,
-        Int16,
-        Uint32,
-        Int32,
-        Float32,
-        Uint64,
-        Int64,
-        Float64,
+        U8,
+        I8,
+        U16,
+        I16,
+        U32,
+        I32,
+        F32,
+        U64,
+        I64,
+        F64,
         /// A string as UTF-8 encoded bytes.
         Utf8,
     }
     impl std::fmt::Debug for ElementType {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             match self {
-                ElementType::Uint8 => f.debug_tuple("ElementType::Uint8").finish(),
-                ElementType::Int8 => f.debug_tuple("ElementType::Int8").finish(),
-                ElementType::Uint16 => f.debug_tuple("ElementType::Uint16").finish(),
-                ElementType::Int16 => f.debug_tuple("ElementType::Int16").finish(),
-                ElementType::Uint32 => f.debug_tuple("ElementType::Uint32").finish(),
-                ElementType::Int32 => f.debug_tuple("ElementType::Int32").finish(),
-                ElementType::Float32 => f.debug_tuple("ElementType::Float32").finish(),
-                ElementType::Uint64 => f.debug_tuple("ElementType::Uint64").finish(),
-                ElementType::Int64 => f.debug_tuple("ElementType::Int64").finish(),
-                ElementType::Float64 => f.debug_tuple("ElementType::Float64").finish(),
+                ElementType::U8 => f.debug_tuple("ElementType::U8").finish(),
+                ElementType::I8 => f.debug_tuple("ElementType::I8").finish(),
+                ElementType::U16 => f.debug_tuple("ElementType::U16").finish(),
+                ElementType::I16 => f.debug_tuple("ElementType::I16").finish(),
+                ElementType::U32 => f.debug_tuple("ElementType::U32").finish(),
+                ElementType::I32 => f.debug_tuple("ElementType::I32").finish(),
+                ElementType::F32 => f.debug_tuple("ElementType::F32").finish(),
+                ElementType::U64 => f.debug_tuple("ElementType::U64").finish(),
+                ElementType::I64 => f.debug_tuple("ElementType::I64").finish(),
+                ElementType::F64 => f.debug_tuple("ElementType::F64").finish(),
                 ElementType::Utf8 => f.debug_tuple("ElementType::Utf8").finish(),
             }
         }
     }
     /// The dimensions that a tensor may have.
     #[derive(Clone)]
-    pub enum DimensionsParam<'a> {
+    pub enum Dimensions<'a> {
         /// There can be an arbitrary number of dimensions with arbitrary sizes.
         Dynamic,
         /// The tensor has a fixed rank with the provided dimension sizes.
@@ -44,60 +44,23 @@ mod runtime_v1 {
         /// dimension being allowed to have any arbitrary length.
         Fixed(&'a [u32]),
     }
-    impl<'a> std::fmt::Debug for DimensionsParam<'a> {
+    impl<'a> std::fmt::Debug for Dimensions<'a> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             match self {
-                DimensionsParam::Dynamic => f.debug_tuple("DimensionsParam::Dynamic").finish(),
-                DimensionsParam::Fixed(e) => {
-                    f.debug_tuple("DimensionsParam::Fixed").field(e).finish()
-                }
-            }
-        }
-    }
-    /// The dimensions that a tensor may have.
-    #[derive(Clone)]
-    pub enum DimensionsResult {
-        /// There can be an arbitrary number of dimensions with arbitrary sizes.
-        Dynamic,
-        /// The tensor has a fixed rank with the provided dimension sizes.
-        ///
-        /// If a particular dimension's length is zero, that is interpreted as the
-        /// dimension being allowed to have any arbitrary length.
-        Fixed(Vec<u32>),
-    }
-    impl std::fmt::Debug for DimensionsResult {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            match self {
-                DimensionsResult::Dynamic => f.debug_tuple("DimensionsResult::Dynamic").finish(),
-                DimensionsResult::Fixed(e) => {
-                    f.debug_tuple("DimensionsResult::Fixed").field(e).finish()
-                }
+                Dimensions::Dynamic => f.debug_tuple("Dimensions::Dynamic").finish(),
+                Dimensions::Fixed(e) => f.debug_tuple("Dimensions::Fixed").field(e).finish(),
             }
         }
     }
     /// The shape of a concrete tensor.
     #[derive(Clone)]
-    pub struct ShapeParam<'a> {
+    pub struct Shape<'a> {
         pub element_type: ElementType,
-        pub dimensions: DimensionsParam<'a>,
+        pub dimensions: Dimensions<'a>,
     }
-    impl<'a> std::fmt::Debug for ShapeParam<'a> {
+    impl<'a> std::fmt::Debug for Shape<'a> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_struct("ShapeParam")
-                .field("element-type", &self.element_type)
-                .field("dimensions", &self.dimensions)
-                .finish()
-        }
-    }
-    /// The shape of a concrete tensor.
-    #[derive(Clone)]
-    pub struct ShapeResult {
-        pub element_type: ElementType,
-        pub dimensions: DimensionsResult,
-    }
-    impl std::fmt::Debug for ShapeResult {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            f.debug_struct("ShapeResult")
+            f.debug_struct("Shape")
                 .field("element-type", &self.element_type)
                 .field("dimensions", &self.dimensions)
                 .finish()
@@ -105,15 +68,46 @@ mod runtime_v1 {
     }
     #[derive(Clone)]
     pub struct Tensor {
-        pub shape: ShapeResult,
-        pub buffer: Vec<u8>,
+        pub dimensions: Vec<u32>,
+        pub data: TensorData,
     }
     impl std::fmt::Debug for Tensor {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             f.debug_struct("Tensor")
-                .field("shape", &self.shape)
-                .field("buffer", &self.buffer)
+                .field("dimensions", &self.dimensions)
+                .field("data", &self.data)
                 .finish()
+        }
+    }
+    #[derive(Clone)]
+    pub enum TensorData {
+        U8(Vec<u8>),
+        I8(Vec<i8>),
+        U16(Vec<u16>),
+        I16(Vec<i16>),
+        U32(Vec<u32>),
+        I32(Vec<i32>),
+        F32(Vec<f32>),
+        U64(Vec<u64>),
+        I64(Vec<i64>),
+        F64(Vec<f64>),
+        Utf8(Vec<String>),
+    }
+    impl std::fmt::Debug for TensorData {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                TensorData::U8(e) => f.debug_tuple("TensorData::U8").field(e).finish(),
+                TensorData::I8(e) => f.debug_tuple("TensorData::I8").field(e).finish(),
+                TensorData::U16(e) => f.debug_tuple("TensorData::U16").field(e).finish(),
+                TensorData::I16(e) => f.debug_tuple("TensorData::I16").field(e).finish(),
+                TensorData::U32(e) => f.debug_tuple("TensorData::U32").field(e).finish(),
+                TensorData::I32(e) => f.debug_tuple("TensorData::I32").field(e).finish(),
+                TensorData::F32(e) => f.debug_tuple("TensorData::F32").field(e).finish(),
+                TensorData::U64(e) => f.debug_tuple("TensorData::U64").field(e).finish(),
+                TensorData::I64(e) => f.debug_tuple("TensorData::I64").field(e).finish(),
+                TensorData::F64(e) => f.debug_tuple("TensorData::F64").field(e).finish(),
+                TensorData::Utf8(e) => f.debug_tuple("TensorData::Utf8").field(e).finish(),
+            }
         }
     }
     /// ! Host functions provided by the proc-block prober.
@@ -685,7 +679,7 @@ mod runtime_v1 {
     /// mechanism.
     pub fn supported_shapes(
         supported_element_types: &[ElementType],
-        dimensions: DimensionsParam<'_>,
+        dimensions: Dimensions<'_>,
     ) -> TensorHint {
         unsafe {
             let vec0 = supported_element_types;
@@ -699,34 +693,34 @@ mod runtime_v1 {
                 let base = result0 as i32 + (i as i32) * 1;
                 {
                     match e {
-                        ElementType::Uint8 => {
+                        ElementType::U8 => {
                             *((base + 0) as *mut u8) = (0i32) as u8;
                         }
-                        ElementType::Int8 => {
+                        ElementType::I8 => {
                             *((base + 0) as *mut u8) = (1i32) as u8;
                         }
-                        ElementType::Uint16 => {
+                        ElementType::U16 => {
                             *((base + 0) as *mut u8) = (2i32) as u8;
                         }
-                        ElementType::Int16 => {
+                        ElementType::I16 => {
                             *((base + 0) as *mut u8) = (3i32) as u8;
                         }
-                        ElementType::Uint32 => {
+                        ElementType::U32 => {
                             *((base + 0) as *mut u8) = (4i32) as u8;
                         }
-                        ElementType::Int32 => {
+                        ElementType::I32 => {
                             *((base + 0) as *mut u8) = (5i32) as u8;
                         }
-                        ElementType::Float32 => {
+                        ElementType::F32 => {
                             *((base + 0) as *mut u8) = (6i32) as u8;
                         }
-                        ElementType::Uint64 => {
+                        ElementType::U64 => {
                             *((base + 0) as *mut u8) = (7i32) as u8;
                         }
-                        ElementType::Int64 => {
+                        ElementType::I64 => {
                             *((base + 0) as *mut u8) = (8i32) as u8;
                         }
-                        ElementType::Float64 => {
+                        ElementType::F64 => {
                             *((base + 0) as *mut u8) = (9i32) as u8;
                         }
                         ElementType::Utf8 => {
@@ -736,8 +730,8 @@ mod runtime_v1 {
                 }
             }
             let (result2_0, result2_1, result2_2) = match dimensions {
-                DimensionsParam::Dynamic => (0i32, 0i32, 0i32),
-                DimensionsParam::Fixed(e) => {
+                Dimensions::Dynamic => (0i32, 0i32, 0i32),
+                Dimensions::Fixed(e) => {
                     let vec1 = e;
                     let ptr1 = vec1.as_ptr() as i32;
                     let len1 = vec1.len() as i32;
@@ -877,15 +871,15 @@ mod runtime_v1 {
         }
     }
     impl GraphContext {
-        pub fn add_input(&self, input: ShapeParam<'_>) {
+        pub fn add_input(&self, input: Shape<'_>) {
             unsafe {
-                let ShapeParam {
+                let Shape {
                     element_type: element_type0,
                     dimensions: dimensions0,
                 } = input;
                 let (result2_0, result2_1, result2_2) = match dimensions0 {
-                    DimensionsParam::Dynamic => (0i32, 0i32, 0i32),
-                    DimensionsParam::Fixed(e) => {
+                    Dimensions::Dynamic => (0i32, 0i32, 0i32),
+                    Dimensions::Fixed(e) => {
                         let vec1 = e;
                         let ptr1 = vec1.as_ptr() as i32;
                         let len1 = vec1.len() as i32;
@@ -913,15 +907,15 @@ mod runtime_v1 {
         }
     }
     impl GraphContext {
-        pub fn add_output(&self, output: ShapeParam<'_>) {
+        pub fn add_output(&self, output: Shape<'_>) {
             unsafe {
-                let ShapeParam {
+                let Shape {
                     element_type: element_type0,
                     dimensions: dimensions0,
                 } = output;
                 let (result2_0, result2_1, result2_2) = match dimensions0 {
-                    DimensionsParam::Dynamic => (0i32, 0i32, 0i32),
-                    DimensionsParam::Fixed(e) => {
+                    Dimensions::Dynamic => (0i32, 0i32, 0i32),
+                    Dimensions::Fixed(e) => {
                         let vec1 = e;
                         let ptr1 = vec1.as_ptr() as i32;
                         let len1 = vec1.len() as i32;
@@ -1005,43 +999,134 @@ mod runtime_v1 {
                 match *((ptr1 + 0) as *const i32) {
                     0 => None,
                     1 => Some({
-                        let len3 = *((ptr1 + 48) as *const i32) as usize;
+                        let len2 = *((ptr1 + 16) as *const i32) as usize;
 
                         Tensor {
-                            shape: ShapeResult {
-                                element_type: match *((ptr1 + 8) as *const i32) {
-                                    0 => ElementType::Uint8,
-                                    1 => ElementType::Int8,
-                                    2 => ElementType::Uint16,
-                                    3 => ElementType::Int16,
-                                    4 => ElementType::Uint32,
-                                    5 => ElementType::Int32,
-                                    6 => ElementType::Float32,
-                                    7 => ElementType::Uint64,
-                                    8 => ElementType::Int64,
-                                    9 => ElementType::Float64,
-                                    10 => ElementType::Utf8,
-                                    _ => panic!("invalid enum discriminant"),
-                                },
-                                dimensions: match *((ptr1 + 16) as *const i32) {
-                                    0 => DimensionsResult::Dynamic,
-                                    1 => DimensionsResult::Fixed({
-                                        let len2 = *((ptr1 + 32) as *const i32) as usize;
-
-                                        Vec::from_raw_parts(
-                                            *((ptr1 + 24) as *const i32) as *mut _,
-                                            len2,
-                                            len2,
-                                        )
-                                    }),
-                                    _ => panic!("invalid enum discriminant"),
-                                },
-                            },
-                            buffer: Vec::from_raw_parts(
-                                *((ptr1 + 40) as *const i32) as *mut _,
-                                len3,
-                                len3,
+                            dimensions: Vec::from_raw_parts(
+                                *((ptr1 + 8) as *const i32) as *mut _,
+                                len2,
+                                len2,
                             ),
+                            data: match *((ptr1 + 24) as *const i32) {
+                                0 => TensorData::U8({
+                                    let len3 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len3,
+                                        len3,
+                                    )
+                                }),
+                                1 => TensorData::I8({
+                                    let len4 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len4,
+                                        len4,
+                                    )
+                                }),
+                                2 => TensorData::U16({
+                                    let len5 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len5,
+                                        len5,
+                                    )
+                                }),
+                                3 => TensorData::I16({
+                                    let len6 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len6,
+                                        len6,
+                                    )
+                                }),
+                                4 => TensorData::U32({
+                                    let len7 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len7,
+                                        len7,
+                                    )
+                                }),
+                                5 => TensorData::I32({
+                                    let len8 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len8,
+                                        len8,
+                                    )
+                                }),
+                                6 => TensorData::F32({
+                                    let len9 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len9,
+                                        len9,
+                                    )
+                                }),
+                                7 => TensorData::U64({
+                                    let len10 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len10,
+                                        len10,
+                                    )
+                                }),
+                                8 => TensorData::I64({
+                                    let len11 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len11,
+                                        len11,
+                                    )
+                                }),
+                                9 => TensorData::F64({
+                                    let len12 = *((ptr1 + 40) as *const i32) as usize;
+
+                                    Vec::from_raw_parts(
+                                        *((ptr1 + 32) as *const i32) as *mut _,
+                                        len12,
+                                        len12,
+                                    )
+                                }),
+                                10 => TensorData::Utf8({
+                                    let base14 = *((ptr1 + 32) as *const i32);
+                                    let len14 = *((ptr1 + 40) as *const i32);
+                                    let mut result14 = Vec::with_capacity(len14 as usize);
+                                    for i in 0..len14 {
+                                        let base = base14 + i * 8;
+                                        result14.push({
+                                            let len13 = *((base + 4) as *const i32) as usize;
+
+                                            String::from_utf8(Vec::from_raw_parts(
+                                                *((base + 0) as *const i32) as *mut _,
+                                                len13,
+                                                len13,
+                                            ))
+                                            .unwrap()
+                                        });
+                                    }
+                                    std::alloc::dealloc(
+                                        base14 as *mut _,
+                                        std::alloc::Layout::from_size_align_unchecked(
+                                            (len14 as usize) * 8,
+                                            4,
+                                        ),
+                                    );
+
+                                    result14
+                                }),
+                                _ => panic!("invalid enum discriminant"),
+                            },
                         }
                     }),
                     _ => panic!("invalid enum discriminant"),
@@ -1050,18 +1135,18 @@ mod runtime_v1 {
         }
     }
     impl KernelContext {
-        pub fn set_output_tensor(&self, name: &str, shape: ShapeParam<'_>, buffer: &[u8]) {
+        pub fn set_output_tensor(&self, name: &str, shape: Shape<'_>, buffer: &[u8]) {
             unsafe {
                 let vec0 = name;
                 let ptr0 = vec0.as_ptr() as i32;
                 let len0 = vec0.len() as i32;
-                let ShapeParam {
+                let Shape {
                     element_type: element_type1,
                     dimensions: dimensions1,
                 } = shape;
                 let (result3_0, result3_1, result3_2) = match dimensions1 {
-                    DimensionsParam::Dynamic => (0i32, 0i32, 0i32),
-                    DimensionsParam::Fixed(e) => {
+                    Dimensions::Dynamic => (0i32, 0i32, 0i32),
+                    Dimensions::Fixed(e) => {
                         let vec2 = e;
                         let ptr2 = vec2.as_ptr() as i32;
                         let len2 = vec2.len() as i32;
@@ -1110,7 +1195,7 @@ mod runtime_v1 {
             }
         }
     }
-    static mut RET_AREA: [i64; 7] = [0; 7];
+    static mut RET_AREA: [i64; 6] = [0; 6];
 }
 mod rune_v1 {
     pub enum GraphError {

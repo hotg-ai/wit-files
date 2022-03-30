@@ -1,0 +1,28 @@
+diff --git a/rune/modulo/src/bindings.rs b/rune/modulo/src/bindings.rs
+index 1ca17b3..f3babeb 100644
+--- a/rune/modulo/src/bindings.rs
++++ b/rune/modulo/src/bindings.rs
+@@ -34,6 +34,7 @@ mod runtime_v1 {
+         }
+     }
+     /// The dimensions that a tensor may have.
++    #[derive(Clone)]
+     pub enum Dimensions<'a> {
+         /// There can be an arbitrary number of dimensions with arbitrary sizes.
+         Dynamic,
+@@ -78,6 +79,7 @@ mod runtime_v1 {
+                 .finish()
+         }
+     }
++    #[derive(Clone)]
+     pub enum TensorData {
+         U8(Vec<u8>),
+         I8(Vec<i8>),
+@@ -1226,6 +1228,7 @@ mod rune_v1 {
+     }
+     /// The reason error is of type string that is thrown by the
+     /// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
++    #[derive(Clone)]
+     pub enum BadArgumentReason {
+         NotFound,
+         InvalidValue(String),

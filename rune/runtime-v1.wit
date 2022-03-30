@@ -84,20 +84,19 @@ supported-shapes: function(supported-element-types: list<element-type>, dimensio
 
 /// The various types of values a tensor may contain.
 enum element-type {
-    uint8,
-    int8,
-    uint16,
-    int16,
-    uint32,
-    int32,
-    float32,
-    uint64,
-    int64,
-    float64,
+    "u8",
+    "i8",
+    "u16",
+    "i16",
+    "u32",
+    "i32",
+    "f32",
+    "u64",
+    "i64",
+    "f64",
     /// A string as UTF-8 encoded bytes.
     utf8,
 }
-
 
 /// The dimensions that a tensor may have.
 variant dimensions {
@@ -145,6 +144,20 @@ record shape {
 }
 
 record tensor {
-    shape: shape,
-    buffer: list<u8>,
+    dimensions: list<u32>,
+    data: tensor-data,
+}
+
+variant tensor-data {
+    "u8"(list<u8>),
+    "i8"(list<s8>),
+    "u16"(list<u16>),
+    "i16"(list<s16>),
+    "u32"(list<u32>),
+    "i32"(list<s32>),
+    "f32"(list<f32>),
+    "u64"(list<u64>),
+    "i64"(list<s64>),
+    "f64"(list<f64>),
+    utf8(list<string>),
 }
