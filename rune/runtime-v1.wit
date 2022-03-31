@@ -151,21 +151,14 @@ record shape {
 
 /// A tensor with fixed dimensions.
 record tensor {
+    /// The type of data this tensor contains.
+    element-type: element-type,
+    /// The tensor's dimensions.
     dimensions: list<u32>,
-    data: tensor-data,
-}
-
-/// The underlying data inside a tensor.
-variant tensor-data {
-    "u8"(list<u8>),
-    "i8"(list<s8>),
-    "u16"(list<u16>),
-    "i16"(list<s16>),
-    "u32"(list<u32>),
-    "i32"(list<s32>),
-    "f32"(list<f32>),
-    "u64"(list<u64>),
-    "i64"(list<s64>),
-    "f64"(list<f64>),
-    utf8(list<string>),
+    /// The raw bytes used by this tensor, as little-endian values.
+    ///
+    /// Note: because string tensors are represented using a variable-length
+    /// encoding where each string is prefixed by its length as a little-endian
+    /// `u32`.
+    buffer: list<u8>,
 }

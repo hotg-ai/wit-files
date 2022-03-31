@@ -1,24 +1,8 @@
 diff --git a/rune/modulo/src/bindings.rs b/rune/modulo/src/bindings.rs
-index bb1fe31..ce799e2 100644
+index 3e746bc..7601b48 100644
 --- a/rune/modulo/src/bindings.rs
 +++ b/rune/modulo/src/bindings.rs
-@@ -80,6 +80,7 @@ mod runtime_v1 {
-         }
-     }
-     /// The underlying data inside a tensor.
-+    #[derive(Clone)]
-     pub enum TensorDataParam<'a> {
-         U8(&'a [u8]),
-         I8(&'a [i8]),
-@@ -113,6 +114,7 @@ mod runtime_v1 {
-         }
-     }
-     /// The underlying data inside a tensor.
-+    #[derive(Clone)]
-     pub enum TensorDataResult {
-         U8(Vec<u8>),
-         I8(Vec<i8>),
-@@ -1365,6 +1367,7 @@ mod rune_v1 {
+@@ -1113,6 +1113,7 @@ mod rune_v1 {
      }
      /// The reason error is of type string that is thrown by the
      /// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))

@@ -1,5 +1,5 @@
 [workspace]
-members = ["rune/modulo", "rune/wasmer-host"]
+members = ["rune/modulo"]
 
 # Note: Override wit-bindgen-rust with a temporary fix for
 # https://github.com/bytecodealliance/wit-bindgen/issues/159

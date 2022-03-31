@@ -5,10 +5,11 @@ include!("./bindings.rs");
 use std::fmt::Display;
 
 use crate::{
+    hotg_proc_blocks::BufferExt,
     rune_v1::{BadArgumentReason, GraphError, InvalidArgument, KernelError},
     runtime_v1::{
         ArgumentMetadata, Dimensions, ElementType, GraphContext, KernelContext, Metadata,
-        TensorDataParam, TensorDataResult, TensorMetadata, TensorParam, TensorResult,
+        TensorMetadata, TensorParam, TensorResult,
     },
 };
 use num_traits::{FromPrimitive, ToPrimitive};
@@ -73,70 +74,60 @@ impl rune_v1::RuneV1 for RuneV1 {
     fn kernel(ctx: Handle<KernelContext>) -> Result<(), KernelError> {
         let modulus = get_modulus(|n| ctx.get_argument(n)).map_err(KernelError::InvalidArgument)?;
 
-        let TensorResult { dimensions, data } = ctx
+        let TensorResult {
+            dimensions,
+            element_type,
+            mut buffer,
+        } = ctx
             .get_input_tensor("input")
             .ok_or_else(|| KernelError::MissingInput("input".to_string()))?;
-
-        let m = Modulus {
-            ctx: &ctx,
-            dimensions: &dimensions,
-            modulus,
-        };
 
         // Note: The "element_type" argument is only used while constructing the
         // ML pipeline. We see its effect at runtime in the form of the tensor
         // data variant that gets used.
 
-        match data {
-            TensorDataResult::U8(d) => m.evaluate(&d, |v| TensorDataParam::U8(v)),
-            TensorDataResult::I8(d) => m.evaluate(&d, |v| TensorDataParam::I8(v)),
-            TensorDataResult::U16(d) => m.evaluate(&d, |v| TensorDataParam::U16(v)),
-            TensorDataResult::I16(d) => m.evaluate(&d, |v| TensorDataParam::I16(v)),
-            TensorDataResult::U32(d) => m.evaluate(&d, |v| TensorDataParam::U32(v)),
-            TensorDataResult::I32(d) => m.evaluate(&d, |v| TensorDataParam::I32(v)),
-            TensorDataResult::F32(d) => m.evaluate(&d, |v| TensorDataParam::F32(v)),
-            TensorDataResult::U64(d) => m.evaluate(&d, |v| TensorDataParam::U64(v)),
-            TensorDataResult::I64(d) => m.evaluate(&d, |v| TensorDataParam::I64(v)),
-            TensorDataResult::F64(d) => m.evaluate(&d, |v| TensorDataParam::F64(v)),
-            TensorDataResult::Utf8(_) => Err(KernelError::Other(
-                "String tensors aren't supported".to_string(),
-            )),
-        }
-    }
-}
-
-struct Modulus<'a> {
-    ctx: &'a KernelContext,
-    dimensions: &'a [u32],
-    modulus: f64,
-}
-
-impl<'a> Modulus<'a> {
-    fn evaluate<T, F>(&self, values: &[T], to_params: F) -> Result<(), KernelError>
-    where
-        T: ToPrimitive + FromPrimitive + Display,
-        F: Fn(&[T]) -> TensorDataParam<'_>,
-    {
-        let Modulus {
-            ctx,
-            dimensions,
-            modulus,
-        } = self;
-        let mut results = Vec::new();
-
-        for value in values {
-            let as_float = value.to_f64().ok_or_else(|| error(value))?;
-            let after_modulus = as_float % modulus;
-            let round_tripped = T::from_f64(after_modulus).ok_or_else(|| error(value))?;
-            results.push(round_tripped);
+        match element_type {
+            ElementType::U8 => modulus_in_place(buffer.elements_mut::<u8>(), modulus)?,
+            ElementType::I8 => modulus_in_place(buffer.elements_mut::<i8>(), modulus)?,
+            ElementType::U16 => modulus_in_place(buffer.elements_mut::<u16>(), modulus)?,
+            ElementType::I16 => modulus_in_place(buffer.elements_mut::<i16>(), modulus)?,
+            ElementType::U32 => modulus_in_place(buffer.elements_mut::<u32>(), modulus)?,
+            ElementType::I32 => modulus_in_place(buffer.elements_mut::<i32>(), modulus)?,
+            ElementType::F32 => modulus_in_place(buffer.elements_mut::<f32>(), modulus)?,
+            ElementType::U64 => modulus_in_place(buffer.elements_mut::<u64>(), modulus)?,
+            ElementType::I64 => modulus_in_place(buffer.elements_mut::<i64>(), modulus)?,
+            ElementType::F64 => modulus_in_place(buffer.elements_mut::<f64>(), modulus)?,
+            ElementType::Utf8 => {
+                return Err(KernelError::Other(
+                    "String tensors aren't supported".to_string(),
+                ))
+            }
         }
 
-        let data = to_params(&results);
-
-        ctx.set_output_tensor("output", TensorParam { dimensions, data });
+        ctx.set_output_tensor(
+            "output",
+            TensorParam {
+                element_type,
+                dimensions: &dimensions,
+                buffer: &buffer,
+            },
+        );
 
         Ok(())
     }
+}
+
+fn modulus_in_place<T>(values: &mut [T], modulus: f64) -> Result<(), KernelError>
+where
+    T: ToPrimitive + FromPrimitive + Copy + Display,
+{
+    for value in values {
+        let as_float = value.to_f64().ok_or_else(|| error(*value))?;
+        let after_modulus = as_float % modulus;
+        *value = T::from_f64(after_modulus).ok_or_else(|| error(*value))?;
+    }
+
+    Ok(())
 }
 
 fn error(value: impl Display) -> KernelError {
@@ -169,4 +160,38 @@ fn get_modulus(get_argument: impl FnOnce(&str) -> Option<String>) -> Result<f64,
             ),
         })
     }
+}
+
+/// Support crate provided by hotg.
+mod hotg_proc_blocks {
+    pub trait BufferExt {
+        fn elements_mut<T: ValueType>(&mut self) -> &mut [T];
+    }
+
+    impl BufferExt for [u8] {
+        fn elements_mut<T: ValueType>(&mut self) -> &mut [T] {
+            unsafe { T::from_bytes_mut(self) }
+        }
+    }
+
+    pub unsafe trait ValueType: Sized {
+        unsafe fn from_bytes_mut(bytes: &mut [u8]) -> &mut [Self];
+    }
+
+    macro_rules! impl_value_type {
+        ($( $type:ty ),* $(,)?) => {
+            $(
+                unsafe impl ValueType for $type {
+                    unsafe fn from_bytes_mut(bytes: &mut [u8]) -> &mut [Self] {
+                        let (start, middle, end) = bytes.align_to_mut::<$type>();
+                        assert!(start.is_empty());
+                        assert!(end.is_empty());
+                        middle
+                    }
+                }
+            )*
+        };
+    }
+
+    impl_value_type!(u8, i8, u16, i16, u32, i32, f32, u64, i64, f64);
 }

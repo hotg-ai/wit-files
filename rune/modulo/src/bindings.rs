@@ -54,113 +54,47 @@ mod runtime_v1 {
     /// A tensor with fixed dimensions.
     #[derive(Clone)]
     pub struct TensorParam<'a> {
+        /// The type of data this tensor contains.
+        pub element_type: ElementType,
+        /// The tensor's dimensions.
         pub dimensions: &'a [u32],
-        pub data: TensorDataParam<'a>,
+        /// The raw bytes used by this tensor, as little-endian values.
+        ///
+        /// Note: because string tensors are represented using a variable-length
+        /// encoding where each string is prefixed by its length as a little-endian
+        /// `u32`.
+        pub buffer: &'a [u8],
     }
     impl<'a> std::fmt::Debug for TensorParam<'a> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             f.debug_struct("TensorParam")
+                .field("element-type", &self.element_type)
                 .field("dimensions", &self.dimensions)
-                .field("data", &self.data)
+                .field("buffer", &self.buffer)
                 .finish()
         }
     }
     /// A tensor with fixed dimensions.
     #[derive(Clone)]
     pub struct TensorResult {
+        /// The type of data this tensor contains.
+        pub element_type: ElementType,
+        /// The tensor's dimensions.
         pub dimensions: Vec<u32>,
-        pub data: TensorDataResult,
+        /// The raw bytes used by this tensor, as little-endian values.
+        ///
+        /// Note: because string tensors are represented using a variable-length
+        /// encoding where each string is prefixed by its length as a little-endian
+        /// `u32`.
+        pub buffer: Vec<u8>,
     }
     impl std::fmt::Debug for TensorResult {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             f.debug_struct("TensorResult")
+                .field("element-type", &self.element_type)
                 .field("dimensions", &self.dimensions)
-                .field("data", &self.data)
+                .field("buffer", &self.buffer)
                 .finish()
-        }
-    }
-    /// The underlying data inside a tensor.
-    #[derive(Clone)]
-    pub enum TensorDataParam<'a> {
-        U8(&'a [u8]),
-        I8(&'a [i8]),
-        U16(&'a [u16]),
-        I16(&'a [i16]),
-        U32(&'a [u32]),
-        I32(&'a [i32]),
-        F32(&'a [f32]),
-        U64(&'a [u64]),
-        I64(&'a [i64]),
-        F64(&'a [f64]),
-        Utf8(&'a [&'a str]),
-    }
-    impl<'a> std::fmt::Debug for TensorDataParam<'a> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            match self {
-                TensorDataParam::U8(e) => f.debug_tuple("TensorDataParam::U8").field(e).finish(),
-                TensorDataParam::I8(e) => f.debug_tuple("TensorDataParam::I8").field(e).finish(),
-                TensorDataParam::U16(e) => f.debug_tuple("TensorDataParam::U16").field(e).finish(),
-                TensorDataParam::I16(e) => f.debug_tuple("TensorDataParam::I16").field(e).finish(),
-                TensorDataParam::U32(e) => f.debug_tuple("TensorDataParam::U32").field(e).finish(),
-                TensorDataParam::I32(e) => f.debug_tuple("TensorDataParam::I32").field(e).finish(),
-                TensorDataParam::F32(e) => f.debug_tuple("TensorDataParam::F32").field(e).finish(),
-                TensorDataParam::U64(e) => f.debug_tuple("TensorDataParam::U64").field(e).finish(),
-                TensorDataParam::I64(e) => f.debug_tuple("TensorDataParam::I64").field(e).finish(),
-                TensorDataParam::F64(e) => f.debug_tuple("TensorDataParam::F64").field(e).finish(),
-                TensorDataParam::Utf8(e) => {
-                    f.debug_tuple("TensorDataParam::Utf8").field(e).finish()
-                }
-            }
-        }
-    }
-    /// The underlying data inside a tensor.
-    #[derive(Clone)]
-    pub enum TensorDataResult {
-        U8(Vec<u8>),
-        I8(Vec<i8>),
-        U16(Vec<u16>),
-        I16(Vec<i16>),
-        U32(Vec<u32>),
-        I32(Vec<i32>),
-        F32(Vec<f32>),
-        U64(Vec<u64>),
-        I64(Vec<i64>),
-        F64(Vec<f64>),
-        Utf8(Vec<String>),
-    }
-    impl std::fmt::Debug for TensorDataResult {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            match self {
-                TensorDataResult::U8(e) => f.debug_tuple("TensorDataResult::U8").field(e).finish(),
-                TensorDataResult::I8(e) => f.debug_tuple("TensorDataResult::I8").field(e).finish(),
-                TensorDataResult::U16(e) => {
-                    f.debug_tuple("TensorDataResult::U16").field(e).finish()
-                }
-                TensorDataResult::I16(e) => {
-                    f.debug_tuple("TensorDataResult::I16").field(e).finish()
-                }
-                TensorDataResult::U32(e) => {
-                    f.debug_tuple("TensorDataResult::U32").field(e).finish()
-                }
-                TensorDataResult::I32(e) => {
-                    f.debug_tuple("TensorDataResult::I32").field(e).finish()
-                }
-                TensorDataResult::F32(e) => {
-                    f.debug_tuple("TensorDataResult::F32").field(e).finish()
-                }
-                TensorDataResult::U64(e) => {
-                    f.debug_tuple("TensorDataResult::U64").field(e).finish()
-                }
-                TensorDataResult::I64(e) => {
-                    f.debug_tuple("TensorDataResult::I64").field(e).finish()
-                }
-                TensorDataResult::F64(e) => {
-                    f.debug_tuple("TensorDataResult::F64").field(e).finish()
-                }
-                TensorDataResult::Utf8(e) => {
-                    f.debug_tuple("TensorDataResult::Utf8").field(e).finish()
-                }
-            }
         }
     }
     /// Metadata describing a single node in the Machine Learning pipeline.
@@ -1069,134 +1003,34 @@ mod runtime_v1 {
                 match *((ptr1 + 0) as *const i32) {
                     0 => None,
                     1 => Some({
-                        let len2 = *((ptr1 + 16) as *const i32) as usize;
+                        let len2 = *((ptr1 + 24) as *const i32) as usize;
+                        let len3 = *((ptr1 + 40) as *const i32) as usize;
 
                         TensorResult {
+                            element_type: match *((ptr1 + 8) as *const i32) {
+                                0 => ElementType::U8,
+                                1 => ElementType::I8,
+                                2 => ElementType::U16,
+                                3 => ElementType::I16,
+                                4 => ElementType::U32,
+                                5 => ElementType::I32,
+                                6 => ElementType::F32,
+                                7 => ElementType::U64,
+                                8 => ElementType::I64,
+                                9 => ElementType::F64,
+                                10 => ElementType::Utf8,
+                                _ => panic!("invalid enum discriminant"),
+                            },
                             dimensions: Vec::from_raw_parts(
-                                *((ptr1 + 8) as *const i32) as *mut _,
+                                *((ptr1 + 16) as *const i32) as *mut _,
                                 len2,
                                 len2,
                             ),
-                            data: match *((ptr1 + 24) as *const i32) {
-                                0 => TensorDataResult::U8({
-                                    let len3 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len3,
-                                        len3,
-                                    )
-                                }),
-                                1 => TensorDataResult::I8({
-                                    let len4 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len4,
-                                        len4,
-                                    )
-                                }),
-                                2 => TensorDataResult::U16({
-                                    let len5 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len5,
-                                        len5,
-                                    )
-                                }),
-                                3 => TensorDataResult::I16({
-                                    let len6 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len6,
-                                        len6,
-                                    )
-                                }),
-                                4 => TensorDataResult::U32({
-                                    let len7 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len7,
-                                        len7,
-                                    )
-                                }),
-                                5 => TensorDataResult::I32({
-                                    let len8 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len8,
-                                        len8,
-                                    )
-                                }),
-                                6 => TensorDataResult::F32({
-                                    let len9 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len9,
-                                        len9,
-                                    )
-                                }),
-                                7 => TensorDataResult::U64({
-                                    let len10 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len10,
-                                        len10,
-                                    )
-                                }),
-                                8 => TensorDataResult::I64({
-                                    let len11 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len11,
-                                        len11,
-                                    )
-                                }),
-                                9 => TensorDataResult::F64({
-                                    let len12 = *((ptr1 + 40) as *const i32) as usize;
-
-                                    Vec::from_raw_parts(
-                                        *((ptr1 + 32) as *const i32) as *mut _,
-                                        len12,
-                                        len12,
-                                    )
-                                }),
-                                10 => TensorDataResult::Utf8({
-                                    let base14 = *((ptr1 + 32) as *const i32);
-                                    let len14 = *((ptr1 + 40) as *const i32);
-                                    let mut result14 = Vec::with_capacity(len14 as usize);
-                                    for i in 0..len14 {
-                                        let base = base14 + i * 8;
-                                        result14.push({
-                                            let len13 = *((base + 4) as *const i32) as usize;
-
-                                            String::from_utf8(Vec::from_raw_parts(
-                                                *((base + 0) as *const i32) as *mut _,
-                                                len13,
-                                                len13,
-                                            ))
-                                            .unwrap()
-                                        });
-                                    }
-                                    std::alloc::dealloc(
-                                        base14 as *mut _,
-                                        std::alloc::Layout::from_size_align_unchecked(
-                                            (len14 as usize) * 8,
-                                            4,
-                                        ),
-                                    );
-
-                                    result14
-                                }),
-                                _ => panic!("invalid enum discriminant"),
-                            },
+                            buffer: Vec::from_raw_parts(
+                                *((ptr1 + 32) as *const i32) as *mut _,
+                                len3,
+                                len3,
+                            ),
                         }
                     }),
                     _ => panic!("invalid enum discriminant"),
@@ -1207,112 +1041,20 @@ mod runtime_v1 {
     impl KernelContext {
         pub fn set_output_tensor(&self, name: &str, tensor: TensorParam<'_>) {
             unsafe {
-                let mut cleanup_list = Vec::new();
                 let vec0 = name;
                 let ptr0 = vec0.as_ptr() as i32;
                 let len0 = vec0.len() as i32;
                 let TensorParam {
+                    element_type: element_type1,
                     dimensions: dimensions1,
-                    data: data1,
+                    buffer: buffer1,
                 } = tensor;
                 let vec2 = dimensions1;
                 let ptr2 = vec2.as_ptr() as i32;
                 let len2 = vec2.len() as i32;
-                let (result15_0, result15_1, result15_2) = match data1 {
-                    TensorDataParam::U8(e) => {
-                        let vec3 = e;
-                        let ptr3 = vec3.as_ptr() as i32;
-                        let len3 = vec3.len() as i32;
-
-                        (0i32, ptr3, len3)
-                    }
-                    TensorDataParam::I8(e) => {
-                        let vec4 = e;
-                        let ptr4 = vec4.as_ptr() as i32;
-                        let len4 = vec4.len() as i32;
-
-                        (1i32, ptr4, len4)
-                    }
-                    TensorDataParam::U16(e) => {
-                        let vec5 = e;
-                        let ptr5 = vec5.as_ptr() as i32;
-                        let len5 = vec5.len() as i32;
-
-                        (2i32, ptr5, len5)
-                    }
-                    TensorDataParam::I16(e) => {
-                        let vec6 = e;
-                        let ptr6 = vec6.as_ptr() as i32;
-                        let len6 = vec6.len() as i32;
-
-                        (3i32, ptr6, len6)
-                    }
-                    TensorDataParam::U32(e) => {
-                        let vec7 = e;
-                        let ptr7 = vec7.as_ptr() as i32;
-                        let len7 = vec7.len() as i32;
-
-                        (4i32, ptr7, len7)
-                    }
-                    TensorDataParam::I32(e) => {
-                        let vec8 = e;
-                        let ptr8 = vec8.as_ptr() as i32;
-                        let len8 = vec8.len() as i32;
-
-                        (5i32, ptr8, len8)
-                    }
-                    TensorDataParam::F32(e) => {
-                        let vec9 = e;
-                        let ptr9 = vec9.as_ptr() as i32;
-                        let len9 = vec9.len() as i32;
-
-                        (6i32, ptr9, len9)
-                    }
-                    TensorDataParam::U64(e) => {
-                        let vec10 = e;
-                        let ptr10 = vec10.as_ptr() as i32;
-                        let len10 = vec10.len() as i32;
-
-                        (7i32, ptr10, len10)
-                    }
-                    TensorDataParam::I64(e) => {
-                        let vec11 = e;
-                        let ptr11 = vec11.as_ptr() as i32;
-                        let len11 = vec11.len() as i32;
-
-                        (8i32, ptr11, len11)
-                    }
-                    TensorDataParam::F64(e) => {
-                        let vec12 = e;
-                        let ptr12 = vec12.as_ptr() as i32;
-                        let len12 = vec12.len() as i32;
-
-                        (9i32, ptr12, len12)
-                    }
-                    TensorDataParam::Utf8(e) => {
-                        let vec14 = e;
-                        let len14 = vec14.len() as i32;
-                        let layout14 =
-                            core::alloc::Layout::from_size_align_unchecked(vec14.len() * 8, 4);
-                        let result14 = std::alloc::alloc(layout14);
-                        if result14.is_null() {
-                            std::alloc::handle_alloc_error(layout14);
-                        }
-                        for (i, e) in vec14.into_iter().enumerate() {
-                            let base = result14 as i32 + (i as i32) * 8;
-                            {
-                                let vec13 = e;
-                                let ptr13 = vec13.as_ptr() as i32;
-                                let len13 = vec13.len() as i32;
-                                *((base + 4) as *mut i32) = len13;
-                                *((base + 0) as *mut i32) = ptr13;
-                            }
-                        }
-                        cleanup_list.extend_from_slice(&[(result14, layout14)]);
-
-                        (10i32, result14 as i32, len14)
-                    }
-                };
+                let vec3 = buffer1;
+                let ptr3 = vec3.as_ptr() as i32;
+                let len3 = vec3.len() as i32;
                 #[link(wasm_import_module = "runtime-v1")]
                 extern "C" {
                     #[cfg_attr(
@@ -1326,11 +1068,15 @@ mod runtime_v1 {
                     fn wit_import(_: i32, _: i32, _: i32, _: i32, _: i32, _: i32, _: i32, _: i32);
                 }
                 wit_import(
-                    self.0, ptr0, len0, ptr2, len2, result15_0, result15_1, result15_2,
+                    self.0,
+                    ptr0,
+                    len0,
+                    element_type1 as i32,
+                    ptr2,
+                    len2,
+                    ptr3,
+                    len3,
                 );
-                for (ptr, layout) in cleanup_list {
-                    std::alloc::dealloc(ptr, layout);
-                }
             }
         }
     }
