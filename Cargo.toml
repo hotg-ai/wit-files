@@ -1,7 +1,2 @@
 [workspace]
-members = ["rune/metadata-example"]
-
-# Note: Override wit-bindgen-rust with a temporary fix for
-# https://github.com/bytecodealliance/wit-bindgen/issues/159
-[patch."https://github.com/bytecodealliance/wit-bindgen" ]
-wit-bindgen-rust = { git = "https://github.com/hotg-ai/wit-bindgen", branch = "troubleshoot-bad-paths" }
+members = ["rune/modulo"]

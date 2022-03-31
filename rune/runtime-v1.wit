@@ -1,5 +1,3 @@
-//! Host functions provided by the proc-block prober.
-
 /// Metadata describing a single node in the Machine Learning pipeline.
 resource metadata {
     /// Create a new metadata object with the provided name and version number.
@@ -84,20 +82,19 @@ supported-shapes: function(supported-element-types: list<element-type>, dimensio
 
 /// The various types of values a tensor may contain.
 enum element-type {
-    uint8,
-    int8,
-    uint16,
-    int16,
-    uint32,
-    int32,
-    float32,
-    uint64,
-    int64,
-    float64,
+    "u8",
+    "i8",
+    "u16",
+    "i16",
+    "u32",
+    "i32",
+    "f32",
+    "u64",
+    "i64",
+    "f64",
     /// A string as UTF-8 encoded bytes.
     utf8,
 }
-
 
 /// The dimensions that a tensor may have.
 variant dimensions {
@@ -121,3 +118,47 @@ non-negative-number: function() -> argument-hint
 
 /// Register a node type with the runtime.
 register-node: function(metadata: metadata)
+
+/// Contextual information used when determining the ML / Data Processing pipeline.
+/// This is defined by the runtime but available for logic within the container (rune)
+resource graph-context {
+    // Name of the argument and returns the value of the argument
+    // Analogy: Getting an environment variable docker container
+    get-argument: function(name: string) -> option<string>
+    add-input-tensor: function(
+        name: string,
+        element-type: element-type,
+        dimensions: dimensions,
+    )
+    add-output-tensor: function(
+        name: string,
+        element-type: element-type,
+        dimensions: dimensions,
+    )
+}
+
+resource kernel-context {
+    get-argument: function(name: string) -> option<string>
+    get-input-tensor: function(name: string) -> option<tensor>
+    set-output-tensor: function(name: string, tensor: tensor)
+}
+
+/// The shape of a concrete tensor.
+record shape {
+    element-type: element-type,
+    dimensions: dimensions,
+}
+
+/// A tensor with fixed dimensions.
+record tensor {
+    /// The type of data this tensor contains.
+    element-type: element-type,
+    /// The tensor's dimensions.
+    dimensions: list<u32>,
+    /// The raw bytes used by this tensor, as little-endian values.
+    ///
+    /// Note: because string tensors are represented using a variable-length
+    /// encoding where each string is prefixed by its length as a little-endian
+    /// `u32`.
+    buffer: list<u8>,
+}
