@@ -42,15 +42,6 @@ resource argument-metadata {
     add-hint: function (hint: argument-hint)
 }
 
-/// The format an argument's value may be in.
-enum type-hint {
-    unsigned-integer,
-    integer,
-    float,
-    oneline-string,
-    multiline-string,
-}
-
 /// Information about a tensor.
 resource tensor-metadata {
     /// Create a new named tensor.
@@ -109,12 +100,35 @@ variant dimensions {
 
 /// Hints that can be used by the runtime when inspecting an argument
 resource argument-hint
+
 /// Hint to the runtime that an argument may be interpreted as a number in `[min, max]`
 interpret-as-number-in-range: function(min: string, max: string) -> argument-hint
+
 /// Hint to the runtime that an argument may be interpreted as a string in a defined list
 interpret-as-string-in-enum: function(string-enum: list<string>) -> argument-hint
+
 /// Hint to the runtime that an argument may be interpreted as a non-negative number
 non-negative-number: function() -> argument-hint
+
+/// How will an argument be interpreted?
+///
+/// All nodes receive arguments as strings. This enum lets the node hint to the
+/// runtime that an argument may be formatted in a particular way.
+enum argument-type {
+    /// An unsigned integer.
+    unsigned-integer,
+    /// An integer, possibly signed.
+    integer,
+    /// A decimal number.
+    float,
+    /// A short string.
+    "string",
+    /// A multi-line string.
+    long-string,
+}
+
+/// Tell the runtime that this argument may have a certain type.
+supported-argument-type: function(hint: argument-type) -> argument-hint
 
 /// Register a node type with the runtime.
 register-node: function(metadata: metadata)
@@ -122,6 +136,10 @@ register-node: function(metadata: metadata)
 /// Contextual information used when determining the ML / Data Processing pipeline.
 /// This is defined by the runtime but available for logic within the container (rune)
 resource graph-context {
+    /// Get the current graph context.
+    ///
+    /// Note: this can only be used from within the `graph()` function.
+    static current: function() -> option<graph-context>
     // Name of the argument and returns the value of the argument
     // Analogy: Getting an environment variable docker container
     get-argument: function(name: string) -> option<string>
@@ -137,7 +155,13 @@ resource graph-context {
     )
 }
 
+/// Contextual information provided to the guest when evaluating a node.
 resource kernel-context {
+    /// Get the current kernel context.
+    ///
+    /// Note: this can only be used from within the `kernel()` function.
+    static current: function() -> option<kernel-context>
+    /// Get a named argument.
     get-argument: function(name: string) -> option<string>
     get-input-tensor: function(name: string) -> option<tensor>
     set-output-tensor: function(name: string, tensor: tensor)

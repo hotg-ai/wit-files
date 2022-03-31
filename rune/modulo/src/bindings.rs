@@ -51,6 +51,37 @@ mod runtime_v1 {
             }
         }
     }
+    /// How will an argument be interpreted?
+    ///
+    /// All nodes receive arguments as strings. This enum lets the node hint to the
+    /// runtime that an argument may be formatted in a particular way.
+    #[repr(u8)]
+    #[derive(Clone, Copy, PartialEq, Eq)]
+    pub enum ArgumentType {
+        /// An unsigned integer.
+        UnsignedInteger,
+        /// An integer, possibly signed.
+        Integer,
+        /// A decimal number.
+        Float,
+        /// A short string.
+        String,
+        /// A multi-line string.
+        LongString,
+    }
+    impl std::fmt::Debug for ArgumentType {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                ArgumentType::UnsignedInteger => {
+                    f.debug_tuple("ArgumentType::UnsignedInteger").finish()
+                }
+                ArgumentType::Integer => f.debug_tuple("ArgumentType::Integer").finish(),
+                ArgumentType::Float => f.debug_tuple("ArgumentType::Float").finish(),
+                ArgumentType::String => f.debug_tuple("ArgumentType::String").finish(),
+                ArgumentType::LongString => f.debug_tuple("ArgumentType::LongString").finish(),
+            }
+        }
+    }
     /// A tensor with fixed dimensions.
     #[derive(Clone)]
     pub struct TensorParam<'a> {
@@ -284,6 +315,7 @@ mod runtime_v1 {
             }
         }
     }
+    /// Contextual information provided to the guest when evaluating a node.
     #[derive(Debug)]
     #[repr(transparent)]
     pub struct KernelContext(i32);
@@ -808,6 +840,22 @@ mod runtime_v1 {
             ArgumentHint(ret)
         }
     }
+    /// Tell the runtime that this argument may have a certain type.
+    pub fn supported_argument_type(hint: ArgumentType) -> ArgumentHint {
+        unsafe {
+            #[link(wasm_import_module = "runtime-v1")]
+            extern "C" {
+                #[cfg_attr(target_arch = "wasm32", link_name = "supported-argument-type")]
+                #[cfg_attr(
+                    not(target_arch = "wasm32"),
+                    link_name = "runtime-v1_supported-argument-type"
+                )]
+                fn wit_import(_: i32) -> i32;
+            }
+            let ret = wit_import(hint as i32);
+            ArgumentHint(ret)
+        }
+    }
     /// Register a node type with the runtime.
     pub fn register_node(metadata: &Metadata) {
         unsafe {
@@ -818,6 +866,31 @@ mod runtime_v1 {
                 fn wit_import(_: i32);
             }
             wit_import(metadata.0);
+        }
+    }
+    impl GraphContext {
+        /// Get the current graph context.
+        ///
+        /// Note: this can only be used from within the `graph()` function.
+        pub fn current() -> Option<GraphContext> {
+            unsafe {
+                let ptr0 = RET_AREA.as_mut_ptr() as i32;
+                #[link(wasm_import_module = "runtime-v1")]
+                extern "C" {
+                    #[cfg_attr(target_arch = "wasm32", link_name = "graph-context::current")]
+                    #[cfg_attr(
+                        not(target_arch = "wasm32"),
+                        link_name = "runtime-v1_graph-context::current"
+                    )]
+                    fn wit_import(_: i32);
+                }
+                wit_import(ptr0);
+                match *((ptr0 + 0) as *const i32) {
+                    0 => None,
+                    1 => Some(GraphContext(*((ptr0 + 8) as *const i32))),
+                    _ => panic!("invalid enum discriminant"),
+                }
+            }
         }
     }
     impl GraphContext {
@@ -947,6 +1020,32 @@ mod runtime_v1 {
         }
     }
     impl KernelContext {
+        /// Get the current kernel context.
+        ///
+        /// Note: this can only be used from within the `kernel()` function.
+        pub fn current() -> Option<KernelContext> {
+            unsafe {
+                let ptr0 = RET_AREA.as_mut_ptr() as i32;
+                #[link(wasm_import_module = "runtime-v1")]
+                extern "C" {
+                    #[cfg_attr(target_arch = "wasm32", link_name = "kernel-context::current")]
+                    #[cfg_attr(
+                        not(target_arch = "wasm32"),
+                        link_name = "runtime-v1_kernel-context::current"
+                    )]
+                    fn wit_import(_: i32);
+                }
+                wit_import(ptr0);
+                match *((ptr0 + 0) as *const i32) {
+                    0 => None,
+                    1 => Some(KernelContext(*((ptr0 + 8) as *const i32))),
+                    _ => panic!("invalid enum discriminant"),
+                }
+            }
+        }
+    }
+    impl KernelContext {
+        /// Get a named argument.
         pub fn get_argument(&self, name: &str) -> Option<String> {
             unsafe {
                 let vec0 = name;
@@ -1154,171 +1253,13 @@ mod rune_v1 {
             }
         }
     }
-
-    unsafe impl wit_bindgen_rust::HandleType for super::GraphContext {
-        #[inline]
-        fn clone(_val: i32) -> i32 {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_clone_graph-context"]
-                    fn clone(val: i32) -> i32;
-                }
-                unsafe { clone(_val) }
-            }
-        }
-
-        #[inline]
-        fn drop(_val: i32) {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_drop_graph-context"]
-                    fn drop(val: i32);
-                }
-                unsafe { drop(_val) }
-            }
-        }
-    }
-
-    unsafe impl wit_bindgen_rust::LocalHandle for super::GraphContext {
-        #[inline]
-        fn new(_val: i32) -> i32 {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_new_graph-context"]
-                    fn new(val: i32) -> i32;
-                }
-                unsafe { new(_val) }
-            }
-        }
-
-        #[inline]
-        fn get(_val: i32) -> i32 {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_get_graph-context"]
-                    fn get(val: i32) -> i32;
-                }
-                unsafe { get(_val) }
-            }
-        }
-    }
-
-    const _: () = {
-        #[export_name = "canonical_abi_drop_graph-context"]
-        extern "C" fn drop(ty: Box<super::GraphContext>) {
-            <super::RuneV1 as RuneV1>::drop_graph_context(*ty)
-        }
-    };
-
-    unsafe impl wit_bindgen_rust::HandleType for super::KernelContext {
-        #[inline]
-        fn clone(_val: i32) -> i32 {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_clone_kernel-context"]
-                    fn clone(val: i32) -> i32;
-                }
-                unsafe { clone(_val) }
-            }
-        }
-
-        #[inline]
-        fn drop(_val: i32) {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_drop_kernel-context"]
-                    fn drop(val: i32);
-                }
-                unsafe { drop(_val) }
-            }
-        }
-    }
-
-    unsafe impl wit_bindgen_rust::LocalHandle for super::KernelContext {
-        #[inline]
-        fn new(_val: i32) -> i32 {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_new_kernel-context"]
-                    fn new(val: i32) -> i32;
-                }
-                unsafe { new(_val) }
-            }
-        }
-
-        #[inline]
-        fn get(_val: i32) -> i32 {
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                panic!("handles can only be used on wasm32");
-            }
-            #[cfg(target_arch = "wasm32")]
-            {
-                #[link(wasm_import_module = "canonical_abi")]
-                extern "C" {
-                    #[link_name = "resource_get_kernel-context"]
-                    fn get(val: i32) -> i32;
-                }
-                unsafe { get(_val) }
-            }
-        }
-    }
-
-    const _: () = {
-        #[export_name = "canonical_abi_drop_kernel-context"]
-        extern "C" fn drop(ty: Box<super::KernelContext>) {
-            <super::RuneV1 as RuneV1>::drop_kernel_context(*ty)
-        }
-    };
     #[export_name = "start"]
     unsafe extern "C" fn __wit_bindgen_start() {
         <super::RuneV1 as RuneV1>::start();
     }
     #[export_name = "graph"]
-    unsafe extern "C" fn __wit_bindgen_graph(arg0: i32) -> i32 {
-        let result0 = <super::RuneV1 as RuneV1>::graph(wit_bindgen_rust::Handle::from_raw(arg0));
+    unsafe extern "C" fn __wit_bindgen_graph() -> i32 {
+        let result0 = <super::RuneV1 as RuneV1>::graph();
         let (result8_0, result8_1, result8_2, result8_3, result8_4, result8_5, result8_6) =
             match result0 {
                 Ok(()) => (0i32, 0i32, 0i32, 0i32, 0i32, 0i32, 0i32),
@@ -1382,8 +1323,8 @@ mod rune_v1 {
         ptr9
     }
     #[export_name = "kernel"]
-    unsafe extern "C" fn __wit_bindgen_kernel(arg0: i32) -> i32 {
-        let result0 = <super::RuneV1 as RuneV1>::kernel(wit_bindgen_rust::Handle::from_raw(arg0));
+    unsafe extern "C" fn __wit_bindgen_kernel() -> i32 {
+        let result0 = <super::RuneV1 as RuneV1>::kernel();
         let (result9_0, result9_1, result9_2, result9_3, result9_4, result9_5, result9_6) =
             match result0 {
                 Ok(()) => (0i32, 0i32, 0i32, 0i32, 0i32, 0i32, 0i32),
@@ -1455,25 +1396,14 @@ mod rune_v1 {
         ptr10
     }
     pub trait RuneV1 {
-        /// An optional callback invoked when a handle is finalized
-        /// and destroyed.
-        fn drop_graph_context(val: super::GraphContext) {
-            drop(val);
-        }
-
-        /// An optional callback invoked when a handle is finalized
-        /// and destroyed.
-        fn drop_kernel_context(val: super::KernelContext) {
-            drop(val);
-        }
-
+        /// ! Functions and types exposed by the Rune.
         /// A function called when the module is first loaded.
         fn start();
         /// A function that is called by the compiler/Forge while constructing the ML
         /// pipeline to find out this node's inputs and outputs.
-        fn graph(ctx: wit_bindgen_rust::Handle<super::GraphContext>) -> Result<(), GraphError>;
+        fn graph() -> Result<(), GraphError>;
         /// The function called when doing inference.
-        fn kernel(ctx: wit_bindgen_rust::Handle<super::KernelContext>) -> Result<(), KernelError>;
+        fn kernel() -> Result<(), KernelError>;
     }
     static mut RET_AREA: [i64; 7] = [0; 7];
 }

@@ -13,7 +13,6 @@ use crate::{
     },
 };
 use num_traits::{FromPrimitive, ToPrimitive};
-use wit_bindgen_rust::Handle;
 
 pub struct RuneV1;
 
@@ -42,7 +41,10 @@ impl rune_v1::RuneV1 for RuneV1 {
         runtime_v1::register_node(&metadata);
     }
 
-    fn graph(ctx: Handle<GraphContext>) -> Result<(), GraphError> {
+    fn graph() -> Result<(), GraphError> {
+        let ctx = GraphContext::current()
+            .ok_or_else(|| GraphError::Other("Unable to load the graph context".to_string()))?;
+
         // make sure the modulus is valid
         let _ = get_modulus(|n| ctx.get_argument(n)).map_err(GraphError::InvalidArgument)?;
 
@@ -71,7 +73,10 @@ impl rune_v1::RuneV1 for RuneV1 {
         Ok(())
     }
 
-    fn kernel(ctx: Handle<KernelContext>) -> Result<(), KernelError> {
+    fn kernel() -> Result<(), KernelError> {
+        let ctx = KernelContext::current()
+            .ok_or_else(|| KernelError::Other("Unable to load the kernel context".to_string()))?;
+
         let modulus = get_modulus(|n| ctx.get_argument(n)).map_err(KernelError::InvalidArgument)?;
 
         let TensorResult {
