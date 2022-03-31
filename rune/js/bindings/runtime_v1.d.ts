@@ -1,11 +1,3 @@
-// The format an argument's value may be in.
-export enum TypeHint {
-  UnsignedInteger = 0,
-  Integer = 1,
-  Float = 2,
-  OnelineString = 3,
-  MultilineString = 4,
-}
 // The various types of values a tensor may contain.
 export enum ElementType {
   U8 = 0,
@@ -34,6 +26,22 @@ export interface DimensionsDynamic {
 export interface DimensionsFixed {
   tag: "fixed",
   val: Uint32Array,
+}
+// How will an argument be interpreted?
+// 
+// All nodes receive arguments as strings. This enum lets the node hint to the
+// runtime that an argument may be formatted in a particular way.
+export enum ArgumentType {
+  // An unsigned integer.
+  UnsignedInteger = 0,
+  // An integer, possibly signed.
+  Integer = 1,
+  // A decimal number.
+  Float = 2,
+  // A short string.
+  String = 3,
+  // A multi-line string.
+  LongString = 4,
 }
 // The shape of a concrete tensor.
 export interface Shape {
@@ -81,8 +89,18 @@ export interface RuntimeV1 {
   interpretAsStringInEnum(stringEnum: string[]): ArgumentHint;
   // Hint to the runtime that an argument may be interpreted as a non-negative number
   nonNegativeNumber(): ArgumentHint;
+  // Tell the runtime that this argument may have a certain type.
+  supportedArgumentType(hint: ArgumentType): ArgumentHint;
   // Register a node type with the runtime.
   registerNode(metadata: Metadata): void;
+  // Get the current graph context.
+  // 
+  // Note: this can only be used from within the `graph()` function.
+  graphContextCurrent(): GraphContext | null;
+  // Get the current kernel context.
+  // 
+  // Note: this can only be used from within the `kernel()` function.
+  kernelContextCurrent(): KernelContext | null;
   dropMetadata?: (val: Metadata) => void;
   dropArgumentMetadata?: (val: ArgumentMetadata) => void;
   dropTensorMetadata?: (val: TensorMetadata) => void;
@@ -144,6 +162,7 @@ export interface GraphContext {
   addOutputTensor(name: string, elementType: ElementType, dimensions: Dimensions): void;
 }
 export interface KernelContext {
+  // Get a named argument.
   getArgument(name: string): string | null;
   getInputTensor(name: string): Tensor | null;
   setOutputTensor(name: string, tensor: Tensor): void;

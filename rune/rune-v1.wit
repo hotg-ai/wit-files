@@ -1,16 +1,14 @@
 //! Functions and types exposed by the Rune.
 
-use { graph-context, kernel-context } from runtime-v1
-
 /// A function called when the module is first loaded.
 start: function()
 
 /// A function that is called by the compiler/Forge while constructing the ML
 /// pipeline to find out this node's inputs and outputs.
-graph: function(ctx: graph-context) -> expected<_, graph-error>
+graph: function() -> expected<_, graph-error>
 
 /// The function called when doing inference.
-kernel: function(ctx: kernel-context) -> expected<_, kernel-error>
+kernel: function() -> expected<_, kernel-error>
 
 variant graph-error {
     invalid-argument(invalid-argument),

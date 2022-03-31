@@ -98,65 +98,12 @@ export class RuneV1 {
   module: WebAssembly.Module | BufferSource | Promise<Response> | Response | WebAssembly.Instance,
   imports?: any,
   ): Promise<void>;
+  // ! Functions and types exposed by the Rune.
   // A function called when the module is first loaded.
   start(): void;
   // A function that is called by the compiler/Forge while constructing the ML
   // pipeline to find out this node's inputs and outputs.
-  graph(ctx: GraphContext): Result<undefined, GraphError>;
+  graph(): Result<undefined, GraphError>;
   // The function called when doing inference.
-  kernel(ctx: KernelContext): Result<undefined, KernelError>;
-}
-
-export class GraphContext {
-  // Creates a new strong reference count as a new
-  // object.  This is only required if you're also
-  // calling `drop` below and want to manually manage
-  // the reference count from JS.
-  //
-  // If you don't call `drop`, you don't need to call
-  // this and can simply use the object from JS.
-  clone(): GraphContext;
-  
-  // Explicitly indicate that this JS object will no
-  // longer be used. If the internal reference count
-  // reaches zero then this will deterministically
-  // destroy the underlying wasm object.
-  //
-  // This is not required to be called from JS. Wasm
-  // destructors will be automatically called for you
-  // if this is not called using the JS
-  // `FinalizationRegistry`.
-  //
-  // Calling this method does not guarantee that the
-  // underlying wasm object is deallocated. Something
-  // else (including wasm) may be holding onto a
-  // strong reference count.
-  drop(): void;
-}
-
-export class KernelContext {
-  // Creates a new strong reference count as a new
-  // object.  This is only required if you're also
-  // calling `drop` below and want to manually manage
-  // the reference count from JS.
-  //
-  // If you don't call `drop`, you don't need to call
-  // this and can simply use the object from JS.
-  clone(): KernelContext;
-  
-  // Explicitly indicate that this JS object will no
-  // longer be used. If the internal reference count
-  // reaches zero then this will deterministically
-  // destroy the underlying wasm object.
-  //
-  // This is not required to be called from JS. Wasm
-  // destructors will be automatically called for you
-  // if this is not called using the JS
-  // `FinalizationRegistry`.
-  //
-  // Calling this method does not guarantee that the
-  // underlying wasm object is deallocated. Something
-  // else (including wasm) may be holding onto a
-  // strong reference count.
-  drop(): void;
+  kernel(): Result<undefined, KernelError>;
 }

@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom";
-import React, { ChangeEvent, useState } from "react";
-import { RuneV1, RuntimeV1, addRuntimeV1ToImports, Metadata, ArgumentMetadata, TensorMetadata, TensorHint, TypeHint, ElementType, Dimensions } from "@hotg-ai/rune-wit-files";
+import { ChangeEvent, useState } from "react";
+import { rune_v1, runtime_v1 } from "@hotg-ai/rune-wit-files";
 
 function App() {
     const [procBlocks, setProcBlocks] = useState<ProcBlockMetadata[]>([]);
@@ -37,11 +37,11 @@ function App() {
     );
 }
 
-class Argument implements ArgumentMetadata {
+class Argument implements runtime_v1.ArgumentMetadata {
     name: string;
     description?: string;
     defaultValue?: string;
-    typeHint?: TypeHint;
+    hints: runtime_v1.ArgumentHint[] = [];
 
     constructor(name: string) {
         this.name = name;
@@ -55,15 +55,15 @@ class Argument implements ArgumentMetadata {
         this.defaultValue = defaultValue;
     }
 
-    setTypeHint(hint: TypeHint) {
-        this.typeHint = hint;
+    addHint(hint: runtime_v1.ArgumentHint): void {
+        this.hints.push(hint);
     }
 }
 
-class Tensor implements TensorMetadata {
+class Tensor implements runtime_v1.TensorMetadata {
     name: string;
     description?: string;
-    hints: Hint[] = [];
+    hints: TensorHint[] = [];
 
     constructor(name: string) {
         this.name = name;
@@ -73,8 +73,8 @@ class Tensor implements TensorMetadata {
         this.description = description;
     }
 
-    addHint(hint: TensorHint) {
-        this.hints.push(hint as Hint);
+    addHint(hint: runtime_v1.TensorHint) {
+        this.hints.push(hint as TensorHint);
     }
 }
 
@@ -84,13 +84,29 @@ type MediaHint = {
 };
 type ExampleShapeHint = {
     type: "supported-shape";
-    supportedElementTypes: ElementType[];
-    dimensions: Dimensions;
+    supportedElementTypes: runtime_v1.ElementType[];
+    dimensions: runtime_v1.Dimensions;
 }
 
-type Hint = MediaHint | ExampleShapeHint;
+type TensorHint = MediaHint | ExampleShapeHint;
 
-class ProcBlockMetadata implements Metadata {
+type NumberInRange = {
+    type: "number-in-range";
+    min: number;
+    max: number;
+};
+type StringEnum = {
+    type: "string-enum";
+    values: string[];
+};
+type NonNegativeNumber = { type: "non-negative-number" };
+type SupportedArgumentType = {
+    type: "supported-argument-type";
+    argumentType: runtime_v1.ArgumentType;
+};
+type ArgumentHint = NumberInRange | StringEnum | NonNegativeNumber | SupportedArgumentType;
+
+class ProcBlockMetadata implements runtime_v1.Metadata {
     name: string;
     version: string;
     description?: string;
@@ -120,7 +136,7 @@ class ProcBlockMetadata implements Metadata {
         this.tags.push(tag);
     }
 
-    addArgument(arg: ArgumentMetadata) {
+    addArgument(arg: runtime_v1.ArgumentMetadata) {
         if (arg instanceof Argument) {
             this.arguments.push(arg);
         } else {
@@ -128,7 +144,7 @@ class ProcBlockMetadata implements Metadata {
         }
     }
 
-    addInput(metadata: TensorMetadata) {
+    addInput(metadata: runtime_v1.TensorMetadata) {
         if (metadata instanceof Tensor) {
             this.inputs.push(metadata);
         } else {
@@ -136,7 +152,7 @@ class ProcBlockMetadata implements Metadata {
         }
     }
 
-    addOutput(metadata: TensorMetadata) {
+    addOutput(metadata: runtime_v1.TensorMetadata) {
         if (metadata instanceof Tensor) {
             this.outputs.push(metadata);
         } else {
@@ -145,8 +161,10 @@ class ProcBlockMetadata implements Metadata {
     }
 };
 
-class Runtime implements RuntimeV1 {
+class Runtime implements runtime_v1.RuntimeV1 {
     metadata?: ProcBlockMetadata;
+    graphContext?: runtime_v1.GraphContext;
+    kernelContext?: runtime_v1.KernelContext;
 
     metadataNew(name: string, version: string): ProcBlockMetadata {
         return new ProcBlockMetadata(name, version);
@@ -160,15 +178,31 @@ class Runtime implements RuntimeV1 {
         return new Tensor(name);
     }
 
-    interpretAsImage(): Hint {
+    interpretAsImage(): TensorHint {
         return { type: "interpret-as", media: "image" };
     }
 
-    interpretAsAudio(): Hint {
+    interpretAsAudio(): TensorHint {
         return { type: "interpret-as", media: "audio" };
     }
 
-    supportedShapes(supportedElementTypes: ElementType[], dimensions: Dimensions): Hint {
+    interpretAsNumberInRange(min: string, max: string): ArgumentHint {
+        return { type: "number-in-range", min: parseFloat(min), max: parseFloat(max) };
+    }
+
+    interpretAsStringInEnum(stringEnum: string[]): ArgumentHint {
+        return { type: "string-enum", values: stringEnum };
+    }
+
+    nonNegativeNumber(): ArgumentHint {
+        return { type: "non-negative-number" };
+    }
+
+    supportedArgumentType(hint: runtime_v1.ArgumentType): ArgumentHint {
+        return { type: "supported-argument-type", argumentType: hint };
+    }
+
+    supportedShapes(supportedElementTypes: runtime_v1.ElementType[], dimensions: runtime_v1.Dimensions): TensorHint {
         return {
             type: "supported-shape",
             supportedElementTypes,
@@ -176,17 +210,25 @@ class Runtime implements RuntimeV1 {
         };
     }
 
-    registerNode(m: Metadata) {
+    registerNode(m: runtime_v1.Metadata) {
         if (m instanceof ProcBlockMetadata) {
             this.metadata = m;
         } else {
             throw new Error();
         }
     }
+
+    graphContextCurrent(): runtime_v1.GraphContext | null {
+        return this.graphContext || null;
+    }
+
+    kernelContextCurrent(): runtime_v1.KernelContext | null {
+        return this.kernelContext || null;
+    }
 }
 
 async function loadMetadata(wasm: ArrayBuffer): Promise<ProcBlockMetadata> {
-    const rune = new RuneV1();
+    const rune = new rune_v1.RuneV1();
     const runtime = new Runtime();
 
     // Next, create the imports object and add our runtime functions to it. We
@@ -194,7 +236,7 @@ async function loadMetadata(wasm: ArrayBuffer): Promise<ProcBlockMetadata> {
     // functions from multiple host modules.
     const imports = {};
 
-    addRuntimeV1ToImports(imports, runtime, (name: string) => rune.instance.exports[name])
+    runtime_v1.addRuntimeV1ToImports(imports, runtime, (name: string) => rune.instance.exports[name])
 
     // Finally, we can finish initializing our Rune
     await rune.instantiate(wasm, imports);

@@ -1,16 +1,4 @@
 import { data_view, UTF8_DECODER, utf8_encode, UTF8_ENCODED_LEN, Slab } from './intrinsics.js';
-export const TypeHint = Object.freeze({
-  0: "UnsignedInteger",
-  "UnsignedInteger": 0,
-  1: "Integer",
-  "Integer": 1,
-  2: "Float",
-  "Float": 2,
-  3: "OnelineString",
-  "OnelineString": 3,
-  4: "MultilineString",
-  "MultilineString": 4,
-});
 export const ElementType = Object.freeze({
   0: "U8",
   "U8": 0,
@@ -34,6 +22,18 @@ export const ElementType = Object.freeze({
   "F64": 9,
   10: "Utf8",
   "Utf8": 10,
+});
+export const ArgumentType = Object.freeze({
+  0: "UnsignedInteger",
+  "UnsignedInteger": 0,
+  1: "Integer",
+  "Integer": 1,
+  2: "Float",
+  "Float": 2,
+  3: "String",
+  "String": 3,
+  4: "LongString",
+  "LongString": 4,
 });
 export function addRuntimeV1ToImports(imports, obj, get_export) {
   if (!("runtime-v1" in imports)) imports["runtime-v1"] = {};
@@ -130,8 +130,59 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
     const ret = obj.nonNegativeNumber();
     return resources4.insert(ret);
   };
+  imports["runtime-v1"]["supported-argument-type"] = function(arg0) {
+    const tag0 = arg0;
+    if (!(tag0 in ArgumentType))
+    throw new RangeError("invalid discriminant specified for ArgumentType");
+    const ret = obj.supportedArgumentType(tag0);
+    return resources4.insert(ret);
+  };
   imports["runtime-v1"]["register-node"] = function(arg0) {
     obj.registerNode(resources0.get(arg0));
+  };
+  imports["runtime-v1"]["graph-context::current"] = function(arg0) {
+    const memory = get_export("memory");
+    const ret = obj.graphContextCurrent();
+    const variant0 = ret;
+    let variant0_0;
+    let variant0_1;
+    switch (variant0) {
+      case null: {
+        variant0_0 = 0;
+        variant0_1 = 0;
+        break;
+      }
+      default: {
+        const e = variant0;
+        variant0_0 = 1;
+        variant0_1 = resources5.insert(e);
+        break;
+      }
+    }
+    data_view(memory).setInt32(arg0 + 8, variant0_1, true);
+    data_view(memory).setInt32(arg0 + 0, variant0_0, true);
+  };
+  imports["runtime-v1"]["kernel-context::current"] = function(arg0) {
+    const memory = get_export("memory");
+    const ret = obj.kernelContextCurrent();
+    const variant0 = ret;
+    let variant0_0;
+    let variant0_1;
+    switch (variant0) {
+      case null: {
+        variant0_0 = 0;
+        variant0_1 = 0;
+        break;
+      }
+      default: {
+        const e = variant0;
+        variant0_0 = 1;
+        variant0_1 = resources6.insert(e);
+        break;
+      }
+    }
+    data_view(memory).setInt32(arg0 + 8, variant0_1, true);
+    data_view(memory).setInt32(arg0 + 0, variant0_0, true);
   };
   imports["runtime-v1"]["metadata::set-description"] = function(arg0, arg1, arg2) {
     const memory = get_export("memory");
