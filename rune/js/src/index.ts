@@ -1,2 +1,4 @@
-export * from "../bindings/rune-v1";
-export * from "../bindings/runtime-v1";
+import * as rune from "../bindings/rune_v1";
+import * as runtime from "../bindings/runtime_v1";
+
+export default { rune, runtime };

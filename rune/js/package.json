@@ -1,23 +1,25 @@
 {
   "name": "@hotg-ai/rune-wit-files",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "type": "commonjs",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "source": "src/index.ts",
+  "types": "dist/index.d.ts",
   "repository": "https://github.com/hotg-ai/wit-files",
   "homepage": "https://hotg.dev/",
   "license": "MIT",
   "scripts": {
     "generate-bindings": "wit-bindgen js --export ../runtime-v1.wit --import ../rune-v1.wit --out-dir ./bindings",
     "watch": "parcel watch",
-    "build": "yarn generate-bindings && parcel build src/index.ts && cat bindings/*.d.ts > dist/index.d.ts"
+    "build": "yarn generate-bindings && parcel build"
   },
   "devDependencies": {
-    "@parcel/packager-ts": "2.3.2",
-    "@parcel/transformer-typescript-tsc": "^2.3.2",
-    "@parcel/transformer-typescript-types": "2.3.2",
-    "parcel": "^2.3.2",
+    "@parcel/packager-ts": "2.4.1",
+    "@parcel/transformer-typescript-tsc": "^2.4.1",
+    "@parcel/transformer-typescript-types": "2.4.1",
     "typescript": ">=3.0.0"
+  },
+  "dependencies": {
+    "parcel": "^2.4.1"
   }
 }
