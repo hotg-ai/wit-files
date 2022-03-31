@@ -73,16 +73,16 @@ supported-shapes: function(supported-element-types: list<element-type>, dimensio
 
 /// The various types of values a tensor may contain.
 enum element-type {
-    "u8",
-    "i8",
-    "u16",
-    "i16",
-    "u32",
-    "i32",
-    "f32",
-    "u64",
-    "i64",
-    "f64",
+    %u8,
+    %i8,
+    %u16,
+    %i16,
+    %u32,
+    %i32,
+    %f32,
+    %u64,
+    %i64,
+    %f64,
     /// A string as UTF-8 encoded bytes.
     utf8,
 }
@@ -122,7 +122,7 @@ enum argument-type {
     /// A decimal number.
     float,
     /// A short string.
-    "string",
+    %string,
     /// A multi-line string.
     long-string,
 }
