@@ -152,7 +152,7 @@ fn get_modulus(get_argument: impl FnOnce(&str) -> Option<String>) -> Result<f64,
     };
 
     let value = value.parse::<f64>().map_err(|e| InvalidArgument {
-        name: "element_type".to_string(),
+        name: "modulus".to_string(),
         reason: BadArgumentReason::InvalidValue(e.to_string()),
     })?;
 
@@ -160,7 +160,7 @@ fn get_modulus(get_argument: impl FnOnce(&str) -> Option<String>) -> Result<f64,
         Ok(value)
     } else {
         Err(InvalidArgument {
-            name: "element_type".to_string(),
+            name: "modulus".to_string(),
             reason: BadArgumentReason::InvalidValue(
                 "The modulus must be a positive, non-zero number".to_string(),
             ),
