@@ -5,10 +5,16 @@ start: function()
 
 /// A function that is called by the compiler/Forge while constructing the ML
 /// pipeline to find out this node's inputs and outputs.
-graph: function() -> expected<_, graph-error>
+///
+/// The implementation can use the provided node ID to retrieve the graph
+/// context for this node.
+graph: function(node-id: string) -> expected<_, graph-error>
 
 /// The function called when doing inference.
-kernel: function() -> expected<_, kernel-error>
+///
+/// The implementation can use the provided node ID to retrieve the kernel
+/// context for this node.
+kernel: function(node-id: string) -> expected<_, kernel-error>
 
 variant graph-error {
     invalid-argument(invalid-argument),

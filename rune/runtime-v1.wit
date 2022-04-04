@@ -136,10 +136,10 @@ register-node: function(metadata: metadata)
 /// Contextual information used when determining the ML / Data Processing pipeline.
 /// This is defined by the runtime but available for logic within the container (rune)
 resource graph-context {
-    /// Get the current graph context.
+    /// Get the graph context for a particular node.
     ///
     /// Note: this can only be used from within the `graph()` function.
-    static current: function() -> option<graph-context>
+    static for-node: function(node-id: string) -> option<graph-context>
     // Name of the argument and returns the value of the argument
     // Analogy: Getting an environment variable docker container
     get-argument: function(name: string) -> option<string>
@@ -157,10 +157,10 @@ resource graph-context {
 
 /// Contextual information provided to the guest when evaluating a node.
 resource kernel-context {
-    /// Get the current kernel context.
+    /// Get the kernel context for a particular node.
     ///
     /// Note: this can only be used from within the `kernel()` function.
-    static current: function() -> option<kernel-context>
+    static for-node: function(node-id: string) -> option<kernel-context>
     /// Get a named argument.
     get-argument: function(name: string) -> option<string>
     get-input-tensor: function(name: string) -> option<tensor>

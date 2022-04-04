@@ -42,8 +42,8 @@ impl rune_v1::RuneV1 for RuneV1 {
         runtime_v1::register_node(&metadata);
     }
 
-    fn graph() -> Result<(), GraphError> {
-        let ctx = GraphContext::current()
+    fn graph(node_id: String) -> Result<(), GraphError> {
+        let ctx = GraphContext::for_node(&node_id)
             .ok_or_else(|| GraphError::Other("Unable to load the graph context".to_string()))?;
 
         // make sure the modulus is valid
@@ -74,8 +74,8 @@ impl rune_v1::RuneV1 for RuneV1 {
         Ok(())
     }
 
-    fn kernel() -> Result<(), KernelError> {
-        let ctx = KernelContext::current()
+    fn kernel(node_id: String) -> Result<(), KernelError> {
+        let ctx = KernelContext::for_node(&node_id)
             .ok_or_else(|| KernelError::Other("Unable to load the kernel context".to_string()))?;
 
         let modulus = get_modulus(|n| ctx.get_argument(n)).map_err(KernelError::InvalidArgument)?;
