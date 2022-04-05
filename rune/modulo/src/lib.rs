@@ -1,13 +1,14 @@
 #![allow(dead_code)]
 
 wit_bindgen_rust::import!("../runtime-v1.wit");
-wit_bindgen_rust::export!("../rune-v1.wit");
+wit_bindgen_rust::export!("../proc-block-v1.wit");
+wit_bindgen_rust::export!("../guest-v1.wit");
 
 use std::fmt::Display;
 
 use crate::{
     hotg_proc_blocks::BufferExt,
-    rune_v1::{BadArgumentReason, GraphError, InvalidArgument, KernelError},
+    proc_block_v1::{BadArgumentReason, GraphError, InvalidArgument, KernelError},
     runtime_v1::{
         ArgumentMetadata, Dimensions, ElementType, GraphContext, KernelContext, Metadata,
         TensorMetadata, TensorParam, TensorResult,
@@ -15,9 +16,9 @@ use crate::{
 };
 use num_traits::{FromPrimitive, ToPrimitive};
 
-pub struct RuneV1;
+pub struct GuestV1;
 
-impl rune_v1::RuneV1 for RuneV1 {
+impl guest_v1::GuestV1 for GuestV1 {
     fn start() {
         let metadata = Metadata::new(env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
         metadata.set_description(env!("CARGO_PKG_DESCRIPTION"));
@@ -41,7 +42,11 @@ impl rune_v1::RuneV1 for RuneV1 {
 
         runtime_v1::register_node(&metadata);
     }
+}
 
+pub struct ProcBlockV1;
+
+impl proc_block_v1::ProcBlockV1 for ProcBlockV1 {
     fn graph(node_id: String) -> Result<(), GraphError> {
         let ctx = GraphContext::for_node(&node_id)
             .ok_or_else(|| GraphError::Other("Unable to load the graph context".to_string()))?;

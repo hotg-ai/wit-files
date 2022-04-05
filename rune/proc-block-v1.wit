@@ -1,8 +1,5 @@
 //! Functions and types exposed by the Rune.
 
-/// A function called when the module is first loaded.
-start: function()
-
 /// A function that is called by the compiler/Forge while constructing the ML
 /// pipeline to find out this node's inputs and outputs.
 ///
