@@ -138,7 +138,7 @@ register-node: function(metadata: metadata)
 resource graph-context {
     /// Get the graph context for a particular node.
     ///
-    /// Note: this can only be used from within the `graph()` function.
+    /// Note: this should only be used from within the `graph()` function.
     static for-node: function(node-id: string) -> option<graph-context>
     // Name of the argument and returns the value of the argument
     // Analogy: Getting an environment variable docker container
@@ -159,7 +159,7 @@ resource graph-context {
 resource kernel-context {
     /// Get the kernel context for a particular node.
     ///
-    /// Note: this can only be used from within the `kernel()` function.
+    /// Note: this should only be used from within the `kernel()` function.
     static for-node: function(node-id: string) -> option<kernel-context>
     /// Get a named argument.
     get-argument: function(name: string) -> option<string>
@@ -186,3 +186,43 @@ record tensor {
     /// `u32`.
     buffer: list<u8>,
 }
+
+/// The verbosity level used while logging.
+enum log-level {
+    trace,
+    debug,
+    info,
+    warn,
+    error,
+    /// An unrecoverable error occurred.
+    fatal,
+}
+
+/// A value that can be used when logging structured data.
+variant log-value {
+    unit,
+    boolean(bool),
+    integer(s64),
+    float(f64),
+    %string(string),
+}
+
+/// Metadata for a log event.
+record log-metadata {
+    name: string,
+    target: string,
+    level: log-level,
+    file: option<string>,
+    line: option<u32>,
+    module: option<string>,
+}
+
+/// A list of key-value pairs used when logging structured data.
+type log-value-map = list<tuple<string, log-value>>
+
+/// Check whether a particular message would be logged, allowing the guest to
+/// avoid potentially expensive work.
+is-enabled: function(metadata: metadata) -> bool
+
+/// Record a log message with some structured data.
+log: function(metadata: metadata, message: string, data: log-value-map)
