@@ -35,6 +35,20 @@ export const ArgumentType = Object.freeze({
   4: "LongString",
   "LongString": 4,
 });
+export const LogLevel = Object.freeze({
+  0: "Trace",
+  "Trace": 0,
+  1: "Debug",
+  "Debug": 1,
+  2: "Info",
+  "Info": 2,
+  3: "Warn",
+  "Warn": 3,
+  4: "Error",
+  "Error": 4,
+  5: "Fatal",
+  "Fatal": 5,
+});
 export function addRuntimeV1ToImports(imports, obj, get_export) {
   if (!("runtime-v1" in imports)) imports["runtime-v1"] = {};
   imports["runtime-v1"]["metadata::new"] = function(arg0, arg1, arg2, arg3) {
@@ -140,49 +154,140 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
   imports["runtime-v1"]["register-node"] = function(arg0) {
     obj.registerNode(resources0.get(arg0));
   };
-  imports["runtime-v1"]["graph-context::current"] = function(arg0) {
+  imports["runtime-v1"]["graph-context::for-node"] = function(arg0, arg1, arg2) {
     const memory = get_export("memory");
-    const ret = obj.graphContextCurrent();
-    const variant0 = ret;
-    let variant0_0;
-    let variant0_1;
-    switch (variant0) {
+    const ptr0 = arg0;
+    const len0 = arg1;
+    const ret = obj.graphContextForNode(UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr0, len0)));
+    const variant1 = ret;
+    let variant1_0;
+    let variant1_1;
+    switch (variant1) {
       case null: {
-        variant0_0 = 0;
-        variant0_1 = 0;
+        variant1_0 = 0;
+        variant1_1 = 0;
         break;
       }
       default: {
-        const e = variant0;
-        variant0_0 = 1;
-        variant0_1 = resources5.insert(e);
+        const e = variant1;
+        variant1_0 = 1;
+        variant1_1 = resources5.insert(e);
         break;
       }
     }
-    data_view(memory).setInt32(arg0 + 8, variant0_1, true);
-    data_view(memory).setInt32(arg0 + 0, variant0_0, true);
+    data_view(memory).setInt32(arg2 + 8, variant1_1, true);
+    data_view(memory).setInt32(arg2 + 0, variant1_0, true);
   };
-  imports["runtime-v1"]["kernel-context::current"] = function(arg0) {
+  imports["runtime-v1"]["kernel-context::for-node"] = function(arg0, arg1, arg2) {
     const memory = get_export("memory");
-    const ret = obj.kernelContextCurrent();
-    const variant0 = ret;
-    let variant0_0;
-    let variant0_1;
-    switch (variant0) {
+    const ptr0 = arg0;
+    const len0 = arg1;
+    const ret = obj.kernelContextForNode(UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr0, len0)));
+    const variant1 = ret;
+    let variant1_0;
+    let variant1_1;
+    switch (variant1) {
       case null: {
-        variant0_0 = 0;
-        variant0_1 = 0;
+        variant1_0 = 0;
+        variant1_1 = 0;
         break;
       }
       default: {
-        const e = variant0;
-        variant0_0 = 1;
-        variant0_1 = resources6.insert(e);
+        const e = variant1;
+        variant1_0 = 1;
+        variant1_1 = resources6.insert(e);
         break;
       }
     }
-    data_view(memory).setInt32(arg0 + 8, variant0_1, true);
-    data_view(memory).setInt32(arg0 + 0, variant0_0, true);
+    data_view(memory).setInt32(arg2 + 8, variant1_1, true);
+    data_view(memory).setInt32(arg2 + 0, variant1_0, true);
+  };
+  imports["runtime-v1"]["is-enabled"] = function(arg0) {
+    const ret = obj.isEnabled(resources0.get(arg0));
+    const variant0 = ret;
+    let variant0_0;
+    switch (variant0) {
+      case false: {
+        variant0_0 = 0;
+        break;
+      }
+      case true: {
+        variant0_0 = 1;
+        break;
+      }
+      default:
+      throw new RangeError("invalid variant specified for bool");
+    }
+    return variant0_0;
+  };
+  imports["runtime-v1"]["log"] = function(arg0, arg1, arg2, arg3, arg4) {
+    const memory = get_export("memory");
+    const ptr0 = arg1;
+    const len0 = arg2;
+    const len5 = arg4;
+    const base5 = arg3;
+    const result5 = [];
+    for (let i = 0; i < len5; i++) {
+      const base = base5 + i * 24;
+      const ptr1 = data_view(memory).getInt32(base + 0, true);
+      const len1 = data_view(memory).getInt32(base + 4, true);
+      let variant4;
+      switch (data_view(memory).getUint8(base + 8, true)) {
+        case 0: {
+          variant4 = {
+            tag: "unit",
+          };
+          break;
+        }
+        case 1: {
+          let variant2;
+          switch (data_view(memory).getUint8(base + 16, true)) {
+            case 0: {
+              variant2 = false;
+              break;
+            }
+            case 1: {
+              variant2 = true;
+              break;
+            }
+            default:
+            throw new RangeError("invalid variant discriminant for bool");
+          }
+          variant4 = {
+            tag: "boolean",
+            val: variant2,
+          };
+          break;
+        }
+        case 2: {
+          variant4 = {
+            tag: "integer",
+            val: data_view(memory).getBigInt64(base + 16, true),
+          };
+          break;
+        }
+        case 3: {
+          variant4 = {
+            tag: "float",
+            val: data_view(memory).getFloat64(base + 16, true),
+          };
+          break;
+        }
+        case 4: {
+          const ptr3 = data_view(memory).getInt32(base + 16, true);
+          const len3 = data_view(memory).getInt32(base + 20, true);
+          variant4 = {
+            tag: "string",
+            val: UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr3, len3)),
+          };
+          break;
+        }
+        default:
+        throw new RangeError("invalid variant discriminant for LogValue");
+      }
+      result5.push([UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr1, len1)), variant4]);
+    }
+    obj.log(resources0.get(arg0), UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr0, len0)), result5);
   };
   imports["runtime-v1"]["metadata::set-description"] = function(arg0, arg1, arg2) {
     const memory = get_export("memory");
@@ -393,11 +498,11 @@ export function addRuntimeV1ToImports(imports, obj, get_export) {
         const val3 = v1_1;
         const len3 = val3.length;
         const ptr3 = realloc(0, 0, 4, len3 * 4);
-        (new Uint8Array(memory.buffer, ptr3, len3 * 4)).set(new Uint8Array(val3.buffer));
+        (new Uint8Array(memory.buffer, ptr3, len3 * 4)).set(new Uint8Array(val3.buffer, val3.byteOffset, len3 * 4));
         const val4 = v1_2;
         const len4 = val4.length;
         const ptr4 = realloc(0, 0, 1, len4 * 1);
-        (new Uint8Array(memory.buffer, ptr4, len4 * 1)).set(new Uint8Array(val4.buffer));
+        (new Uint8Array(memory.buffer, ptr4, len4 * 1)).set(new Uint8Array(val4.buffer, val4.byteOffset, len4 * 1));
         variant5_0 = 1;
         variant5_1 = Number.isInteger(variant2) ? variant2 : ElementType[variant2];
         variant5_2 = ptr3;

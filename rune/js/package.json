@@ -9,7 +9,7 @@
   "homepage": "https://hotg.dev/",
   "license": "MIT",
   "scripts": {
-    "generate-bindings": "wit-bindgen js --export ../runtime-v1.wit --import ../rune-v1.wit --out-dir ./bindings",
+    "generate-bindings": "wit-bindgen js --export ../runtime-v1.wit --import ../guest-v1.wit --import ../proc-block-v1.wit --out-dir ./bindings",
     "watch": "parcel watch",
     "build": "yarn generate-bindings && parcel build"
   },
