@@ -1,47 +1,31 @@
-export type Result<T, E> = { tag: "ok", val: T } | { tag: "err", val: E };
-export type GraphError = GraphErrorInvalidArgument | GraphErrorOther;
-export interface GraphErrorInvalidArgument {
-  tag: "invalid-argument",
-  val: InvalidArgument,
-}
-export interface GraphErrorOther {
-  tag: "other",
-  val: string,
-}
-export interface InvalidArgument {
-  name: string,
-  reason: BadArgumentReason,
+/**
+* A description of a Rune pipeline.
+*/
+export interface Pipeline {
+  /**
+  * The list of nodes in this pipeline.
+  */
+  nodes: Node[],
 }
 /**
-* The reason error is of type string that is thrown by the
-* for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
+* A single node in the pipeline.
 */
-export type BadArgumentReason = BadArgumentReasonNotFound | BadArgumentReasonInvalidValue | BadArgumentReasonOther;
-export interface BadArgumentReasonNotFound {
-  tag: "not-found",
+export interface Node {
+  /**
+  * A string that uniquely identifies this node.
+  */
+  id: string,
+  /**
+  * A list of the nodes this node depends on.
+  */
+  dependsOn: string[],
+  /**
+  * Arguments that should be passed to this node while typechecking and
+  * evaluating it, as a list of key-value pairs.
+  */
+  arguments: [string, string][],
 }
-export interface BadArgumentReasonInvalidValue {
-  tag: "invalid-value",
-  val: string,
-}
-export interface BadArgumentReasonOther {
-  tag: "other",
-  val: string,
-}
-export type KernelError = KernelErrorInvalidArgument | KernelErrorMissingInput | KernelErrorOther;
-export interface KernelErrorInvalidArgument {
-  tag: "invalid-argument",
-  val: InvalidArgument,
-}
-export interface KernelErrorMissingInput {
-  tag: "missing-input",
-  val: string,
-}
-export interface KernelErrorOther {
-  tag: "other",
-  val: string,
-}
-export class ProcBlockV1 {
+export class RuneV1 {
   
   /**
   * The WebAssembly instance that this class is operating with.
@@ -109,23 +93,7 @@ export class ProcBlockV1 {
   imports?: any,
   ): Promise<void>;
   /**
-  * A function called by the runtime when it wants the proc-block to register
-  * metadata.
+  * Get the pipeline this Rune contains.
   */
-  registerMetadata(): void;
-  /**
-  * A function that is called by the compiler/Forge while constructing the ML
-  * pipeline to find out this node's inputs and outputs.
-  * 
-  * The implementation can use the provided node ID to retrieve the graph
-  * context for this node.
-  */
-  graph(nodeId: string): Result<undefined, GraphError>;
-  /**
-  * The function called when doing inference.
-  * 
-  * The implementation can use the provided node ID to retrieve the kernel
-  * context for this node.
-  */
-  kernel(nodeId: string): Result<undefined, KernelError>;
+  getPipeline(): Pipeline;
 }

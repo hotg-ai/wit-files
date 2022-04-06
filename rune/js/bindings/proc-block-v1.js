@@ -20,6 +20,9 @@ export class ProcBlockV1 {
     }
     this._exports = this.instance.exports;
   }
+  registerMetadata() {
+    this._exports['register-metadata']();
+  }
   graph(arg0) {
     const memory = this._exports.memory;
     const realloc = this._exports["canonical_abi_realloc"];

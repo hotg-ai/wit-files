@@ -2,7 +2,6 @@
 
 wit_bindgen_rust::import!("../runtime-v1.wit");
 wit_bindgen_rust::export!("../proc-block-v1.wit");
-wit_bindgen_rust::export!("../guest-v1.wit");
 
 use std::fmt::Display;
 
@@ -16,10 +15,10 @@ use crate::{
 };
 use num_traits::{FromPrimitive, ToPrimitive};
 
-pub struct GuestV1;
+pub struct ProcBlockV1;
 
-impl guest_v1::GuestV1 for GuestV1 {
-    fn start() {
+impl proc_block_v1::ProcBlockV1 for ProcBlockV1 {
+    fn register_metadata() {
         let metadata = Metadata::new(env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
         metadata.set_description(env!("CARGO_PKG_DESCRIPTION"));
 
@@ -42,11 +41,7 @@ impl guest_v1::GuestV1 for GuestV1 {
 
         runtime_v1::register_node(&metadata);
     }
-}
 
-pub struct ProcBlockV1;
-
-impl proc_block_v1::ProcBlockV1 for ProcBlockV1 {
     fn graph(node_id: String) -> Result<(), GraphError> {
         let ctx = GraphContext::for_node(&node_id)
             .ok_or_else(|| GraphError::Other("Unable to load the graph context".to_string()))?;
@@ -205,4 +200,18 @@ mod hotg_proc_blocks {
     }
 
     impl_value_type!(u8, i8, u16, i16, u32, i32, f32, u64, i64, f64);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn apply_modulus() {
+        let mut values = [0.0_f64, 1.0, 2.0, 3.0, 4.0, 5.0];
+
+        modulus_in_place(&mut values, 2.0).unwrap();
+
+        assert_eq!(values, [0.0_f64, 1.0, 0.0, 1.0, 0.0, 1.0]);
+    }
 }

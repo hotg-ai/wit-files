@@ -202,13 +202,13 @@ export interface RuntimeV1 {
   /**
   * Get the graph context for a particular node.
   * 
-  * Note: this can only be used from within the `graph()` function.
+  * Note: this should only be used from within the `graph()` function.
   */
   graphContextForNode(nodeId: string): GraphContext | null;
   /**
   * Get the kernel context for a particular node.
   * 
-  * Note: this can only be used from within the `kernel()` function.
+  * Note: this should only be used from within the `kernel()` function.
   */
   kernelContextForNode(nodeId: string): KernelContext | null;
   /**

@@ -15,5 +15,5 @@ record node {
     arguments: list<tuple<string, string>>,
 }
 
-/// Get the pipeline this.
+/// Get the pipeline this Rune contains.
 get-pipeline: function() -> pipeline
