@@ -1,13 +1,13 @@
 #![allow(dead_code)]
 
 wit_bindgen_rust::import!("../runtime-v1.wit");
-wit_bindgen_rust::export!("../rune-v1.wit");
+wit_bindgen_rust::export!("../proc-block-v1.wit");
 
 use std::fmt::Display;
 
 use crate::{
     hotg_proc_blocks::BufferExt,
-    rune_v1::{BadArgumentReason, GraphError, InvalidArgument, KernelError},
+    proc_block_v1::{BadArgumentReason, GraphError, InvalidArgument, KernelError},
     runtime_v1::{
         ArgumentMetadata, Dimensions, ElementType, GraphContext, KernelContext, Metadata,
         TensorMetadata, TensorParam, TensorResult,
@@ -15,10 +15,10 @@ use crate::{
 };
 use num_traits::{FromPrimitive, ToPrimitive};
 
-pub struct RuneV1;
+pub struct ProcBlockV1;
 
-impl rune_v1::RuneV1 for RuneV1 {
-    fn start() {
+impl proc_block_v1::ProcBlockV1 for ProcBlockV1 {
+    fn register_metadata() {
         let metadata = Metadata::new(env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
         metadata.set_description(env!("CARGO_PKG_DESCRIPTION"));
 
@@ -200,4 +200,18 @@ mod hotg_proc_blocks {
     }
 
     impl_value_type!(u8, i8, u16, i16, u32, i32, f32, u64, i64, f64);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn apply_modulus() {
+        let mut values = [0.0_f64, 1.0, 2.0, 3.0, 4.0, 5.0];
+
+        modulus_in_place(&mut values, 2.0).unwrap();
+
+        assert_eq!(values, [0.0_f64, 1.0, 0.0, 1.0, 0.0, 1.0]);
+    }
 }

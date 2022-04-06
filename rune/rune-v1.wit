@@ -1,41 +1,19 @@
-//! Functions and types exposed by the Rune.
-
-/// A function called when the module is first loaded.
-start: function()
-
-/// A function that is called by the compiler/Forge while constructing the ML
-/// pipeline to find out this node's inputs and outputs.
-///
-/// The implementation can use the provided node ID to retrieve the graph
-/// context for this node.
-graph: function(node-id: string) -> expected<_, graph-error>
-
-/// The function called when doing inference.
-///
-/// The implementation can use the provided node ID to retrieve the kernel
-/// context for this node.
-kernel: function(node-id: string) -> expected<_, kernel-error>
-
-variant graph-error {
-    invalid-argument(invalid-argument),
-    other(string),
+/// A description of a Rune pipeline.
+record pipeline {
+    /// The list of nodes in this pipeline.
+    nodes: list<node>,
 }
 
-record invalid-argument {
-    name: string,
-    reason: bad-argument-reason,
+/// A single node in the pipeline.
+record node {
+    /// A string that uniquely identifies this node.
+    id: string,
+    /// A list of the nodes this node depends on.
+    depends-on: list<string>,
+    /// Arguments that should be passed to this node while typechecking and
+    /// evaluating it, as a list of key-value pairs.
+    arguments: list<tuple<string, string>>,
 }
 
-/// The reason error is of type string that is thrown by the
-/// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
-variant bad-argument-reason {
-    not-found,
-    invalid-value(string),
-    other(string),
-}
-
-variant kernel-error {
-    invalid-argument(invalid-argument),
-    missing-input(string),
-    other(string),
-}
+/// Get the pipeline this Rune contains.
+get-pipeline: function() -> pipeline

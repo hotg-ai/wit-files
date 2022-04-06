@@ -1,7 +1,6 @@
 [workspace]
 members = ["rune/modulo"]
 
-# Temporary override while waiting for a fix to be merged upstream.
-# See https://github.com/bytecodealliance/wit-bindgen/pull/184
-[patch.'https://github.com/bytecodealliance/wit-bindgen']
-wit-bindgen-rust = { git = "https://github.com/hotg-ai/wit-bindgen", branch = "variant-should-be-clone" }
+# Uncomment this if you ever need to override wit-bindgen with HOTG's fork.
+#[patch.'https://github.com/bytecodealliance/wit-bindgen']
+#wit-bindgen-rust = { git = "https://github.com/hotg-ai/wit-bindgen", branch = "xxx" }

@@ -1,0 +1,42 @@
+//! Functions and types exposed by the Rune.
+
+/// A function called by the runtime when it wants the proc-block to register
+/// metadata.
+register-metadata: function()
+
+/// A function that is called by the compiler/Forge while constructing the ML
+/// pipeline to find out this node's inputs and outputs.
+///
+/// The implementation can use the provided node ID to retrieve the graph
+/// context for this node.
+graph: function(node-id: string) -> expected<_, graph-error>
+
+/// The function called when doing inference.
+///
+/// The implementation can use the provided node ID to retrieve the kernel
+/// context for this node.
+kernel: function(node-id: string) -> expected<_, kernel-error>
+
+variant graph-error {
+    invalid-argument(invalid-argument),
+    other(string),
+}
+
+record invalid-argument {
+    name: string,
+    reason: bad-argument-reason,
+}
+
+/// The reason error is of type string that is thrown by the
+/// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
+variant bad-argument-reason {
+    not-found,
+    invalid-value(string),
+    other(string),
+}
+
+variant kernel-error {
+    invalid-argument(invalid-argument),
+    missing-input(string),
+    other(string),
+}

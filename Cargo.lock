@@ -71,9 +71,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.36"
+version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029"
+checksum = "ec757218438d5fda206afc041538b2f6d889286160d649a86a24d37e1235afd1"
 dependencies = [
  "unicode-xid",
 ]
@@ -100,9 +100,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.90"
+version = "1.0.91"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "704df27628939572cd88d33f171cd6f896f4eaca85252c6e0a72d8d8287ee86f"
+checksum = "b683b2b825c8eef438b77c36a06dc262294da3d5a5813fac20da149241dcd44d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -163,7 +163,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "wit-bindgen-gen-core"
 version = "0.1.0"
-source = "git+https://github.com/hotg-ai/wit-bindgen?branch=variant-should-be-clone#4e2fe42bb032269b18e0266dc5ea50e787e08be0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#e165c0226ad0f00a840ef786079b58d0910dbb6b"
 dependencies = [
  "anyhow",
  "wit-parser",
@@ -172,7 +172,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-gen-rust"
 version = "0.1.0"
-source = "git+https://github.com/hotg-ai/wit-bindgen?branch=variant-should-be-clone#4e2fe42bb032269b18e0266dc5ea50e787e08be0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#e165c0226ad0f00a840ef786079b58d0910dbb6b"
 dependencies = [
  "heck",
  "wit-bindgen-gen-core",
@@ -181,7 +181,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-gen-rust-wasm"
 version = "0.1.0"
-source = "git+https://github.com/hotg-ai/wit-bindgen?branch=variant-should-be-clone#4e2fe42bb032269b18e0266dc5ea50e787e08be0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#e165c0226ad0f00a840ef786079b58d0910dbb6b"
 dependencies = [
  "heck",
  "wit-bindgen-gen-core",
@@ -191,7 +191,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust"
 version = "0.1.0"
-source = "git+https://github.com/hotg-ai/wit-bindgen?branch=variant-should-be-clone#4e2fe42bb032269b18e0266dc5ea50e787e08be0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#e165c0226ad0f00a840ef786079b58d0910dbb6b"
 dependencies = [
  "async-trait",
  "bitflags",
@@ -201,7 +201,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust-impl"
 version = "0.1.0"
-source = "git+https://github.com/hotg-ai/wit-bindgen?branch=variant-should-be-clone#4e2fe42bb032269b18e0266dc5ea50e787e08be0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#e165c0226ad0f00a840ef786079b58d0910dbb6b"
 dependencies = [
  "proc-macro2",
  "syn",
@@ -212,7 +212,7 @@ dependencies = [
 [[package]]
 name = "wit-parser"
 version = "0.1.0"
-source = "git+https://github.com/hotg-ai/wit-bindgen?branch=variant-should-be-clone#4e2fe42bb032269b18e0266dc5ea50e787e08be0"
+source = "git+https://github.com/bytecodealliance/wit-bindgen#e165c0226ad0f00a840ef786079b58d0910dbb6b"
 dependencies = [
  "anyhow",
  "id-arena",
