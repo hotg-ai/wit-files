@@ -1,5 +1,9 @@
 //! Functions and types exposed by the Rune.
 
+/// A function called by the runtime when it wants the proc-block to register
+/// metadata.
+register-metadata: function()
+
 /// A function that is called by the compiler/Forge while constructing the ML
 /// pipeline to find out this node's inputs and outputs.
 ///

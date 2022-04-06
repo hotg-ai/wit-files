@@ -1,4 +1,0 @@
-/// Functionality shared by all WebAssembly modules.
-
-/// A function called when the module is first loaded.
-start: function()
