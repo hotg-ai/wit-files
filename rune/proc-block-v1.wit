@@ -18,8 +18,10 @@ graph: function(node-id: string) -> expected<_, graph-error>
 kernel: function(node-id: string) -> expected<_, kernel-error>
 
 variant graph-error {
-    invalid-argument(invalid-argument),
     other(string),
+    invalid-argument(invalid-argument),
+    /// Unable to retrieve the graph context for this node.
+    missing-context,
 }
 
 record invalid-argument {
@@ -30,13 +32,33 @@ record invalid-argument {
 /// The reason error is of type string that is thrown by the
 /// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
 variant bad-argument-reason {
+    other(string),
     not-found,
     invalid-value(string),
-    other(string),
 }
 
 variant kernel-error {
-    invalid-argument(invalid-argument),
-    missing-input(string),
     other(string),
+    invalid-argument(invalid-argument),
+    input-input(invalid-input),
+    /// Unable to retrieve the kernel context for this node.
+    missing-context,
+}
+
+/// An input tensor was invalid.
+record invalid-input {
+    /// The name of the invalid tensor.
+    name: string,
+    /// Why it is invalid.
+    reason: bad-input-reason,
+}
+
+variant bad-input-reason {
+    other(string),
+    /// The input tensor wasn't provided.
+    not-found,
+    /// The input tensor contained an invalid value.
+    invalid-value(string),
+    /// The input tensor has an unsupported shape.
+    unsupported-shape,
 }
