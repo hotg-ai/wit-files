@@ -40,7 +40,7 @@ variant bad-argument-reason {
 variant kernel-error {
     other(string),
     invalid-argument(invalid-argument),
-    input-input(invalid-input),
+    invalid-input(invalid-input),
     /// Unable to retrieve the kernel context for this node.
     missing-context,
 }
