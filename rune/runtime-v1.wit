@@ -163,8 +163,20 @@ resource kernel-context {
     static for-node: function(node-id: string) -> option<kernel-context>
     /// Get a named argument.
     get-argument: function(name: string) -> option<string>
+    /// Get one of this node's input tensors by name.
     get-input-tensor: function(name: string) -> option<tensor>
+    /// Set one of this node's input tensors by name.
     set-output-tensor: function(name: string, tensor: tensor)
+    /// Get a global input tensor.
+    ///
+    /// Note: these tensors live in a separate namespace from a node's normal
+    /// input and output tensors.
+    get-global-input: function(name: string) -> option<tensor>
+    /// Set a global input tensor.
+    ///
+    /// Note: these tensors live in a separate namespace from a node's normal
+    /// input and output tensors.
+    set-global-output: function(name: string, tensor: tensor)
 }
 
 /// The shape of a concrete tensor.
@@ -226,3 +238,25 @@ is-enabled: function(metadata: metadata) -> bool
 
 /// Record a log message with some structured data.
 log: function(metadata: metadata, message: string, data: log-value-map)
+
+resource model {
+    /// Use the runtime to load a model.
+    ///
+    /// The `model-format` argument tells the runtime what type of model is
+    /// being loaded. Arguments, a list of key-value pairs, may be used to
+    /// modify the loading process (e.g. to request hardware acceleration).
+    static load: function(
+        model-format: string,
+        model: list<u8>,
+        arguments: list<tuple<string, string>>,
+    ) -> expected<model, model-load-error>
+    infer: function(inputs: list<tensor>) -> expected<list<tensor>, model-infer-error>
+}
+
+variant model-load-error {
+    other(string),
+}
+
+variant model-infer-error {
+    other(string),
+}
