@@ -251,6 +251,10 @@ resource model {
         arguments: list<tuple<string, string>>,
     ) -> expected<model, model-load-error>
     infer: function(inputs: list<tensor>) -> expected<list<tensor>, model-infer-error>
+    /// The shape of this model's input tensors.
+    inputs: function() -> list<shape>
+    /// The shape of this model's output tensors.
+    outputs: function() -> list<shape>
 }
 
 variant model-load-error {
