@@ -212,7 +212,7 @@ enum log-level {
 
 /// A value that can be used when logging structured data.
 variant log-value {
-    unit,
+    null,
     boolean(bool),
     integer(s64),
     float(f64),
