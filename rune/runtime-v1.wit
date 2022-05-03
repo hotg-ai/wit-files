@@ -79,10 +79,10 @@ enum element-type {
     %i16,
     %u32,
     %i32,
-    %f32,
+    %float32,
     %u64,
     %i64,
-    %f64,
+    %float64,
     /// A string as UTF-8 encoded bytes.
     utf8,
 }
@@ -215,7 +215,7 @@ variant log-value {
     null,
     boolean(bool),
     integer(s64),
-    float(f64),
+    float(float64),
     %string(string),
 }
 
