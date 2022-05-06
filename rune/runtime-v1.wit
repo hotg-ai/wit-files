@@ -234,10 +234,10 @@ type log-value-map = list<tuple<string, log-value>>
 
 /// Check whether a particular message would be logged, allowing the guest to
 /// avoid potentially expensive work.
-is-enabled: function(metadata: metadata) -> bool
+is-enabled: function(metadata: log-metadata) -> bool
 
 /// Record a log message with some structured data.
-log: function(metadata: metadata, message: string, data: log-value-map)
+log: function(metadata: log-metadata, message: string, data: log-value-map)
 
 resource model {
     /// Use the runtime to load a model.
