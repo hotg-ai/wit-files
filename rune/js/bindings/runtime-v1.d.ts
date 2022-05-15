@@ -1,3 +1,4 @@
+export type Result<T, E> = { tag: "ok", val: T } | { tag: "err", val: E };
 /**
 * The various types of values a tensor may contain.
 */
@@ -110,9 +111,9 @@ export enum LogLevel {
 /**
 * A value that can be used when logging structured data.
 */
-export type LogValue = LogValueUnit | LogValueBoolean | LogValueInteger | LogValueFloat | LogValueString;
-export interface LogValueUnit {
-  tag: "unit",
+export type LogValue = LogValueNull | LogValueBoolean | LogValueInteger | LogValueFloat | LogValueString;
+export interface LogValueNull {
+  tag: "null",
 }
 export interface LogValueBoolean {
   tag: "boolean",
@@ -145,6 +146,16 @@ export interface LogMetadata {
 * A list of key-value pairs used when logging structured data.
 */
 export type LogValueMap = [string, LogValue][];
+export type ModelLoadError = ModelLoadErrorOther;
+export interface ModelLoadErrorOther {
+  tag: "other",
+  val: string,
+}
+export type ModelInferError = ModelInferErrorOther;
+export interface ModelInferErrorOther {
+  tag: "other",
+  val: string,
+}
 export function addRuntimeV1ToImports(imports: any, obj: RuntimeV1, get_export: (name: string) => WebAssembly.ExportValue): void;
 export interface RuntimeV1 {
   /**
@@ -215,11 +226,19 @@ export interface RuntimeV1 {
   * Check whether a particular message would be logged, allowing the guest to
   * avoid potentially expensive work.
   */
-  isEnabled(metadata: Metadata): boolean;
+  isEnabled(metadata: LogMetadata): boolean;
   /**
   * Record a log message with some structured data.
   */
-  log(metadata: Metadata, message: string, data: LogValueMap): void;
+  log(metadata: LogMetadata, message: string, data: LogValueMap): void;
+  /**
+  * Use the runtime to load a model.
+  * 
+  * The `model-format` argument tells the runtime what type of model is
+  * being loaded. Arguments, a list of key-value pairs, may be used to
+  * modify the loading process (e.g. to request hardware acceleration).
+  */
+  modelLoad(modelFormat: string, model: Uint8Array, arguments: [string, string][]): Result<Model, ModelLoadError>;
   dropMetadata?: (val: Metadata) => void;
   dropArgumentMetadata?: (val: ArgumentMetadata) => void;
   dropTensorMetadata?: (val: TensorMetadata) => void;
@@ -227,6 +246,7 @@ export interface RuntimeV1 {
   dropArgumentHint?: (val: ArgumentHint) => void;
   dropGraphContext?: (val: GraphContext) => void;
   dropKernelContext?: (val: KernelContext) => void;
+  dropModel?: (val: Model) => void;
 }
 export interface Metadata {
   /**
@@ -307,6 +327,37 @@ export interface KernelContext {
   * Get a named argument.
   */
   getArgument(name: string): string | null;
+  /**
+  * Get one of this node's input tensors by name.
+  */
   getInputTensor(name: string): Tensor | null;
+  /**
+  * Set one of this node's input tensors by name.
+  */
   setOutputTensor(name: string, tensor: Tensor): void;
+  /**
+  * Get a global input tensor.
+  * 
+  * Note: these tensors live in a separate namespace from a node's normal
+  * input and output tensors.
+  */
+  getGlobalInput(name: string): Tensor | null;
+  /**
+  * Set a global input tensor.
+  * 
+  * Note: these tensors live in a separate namespace from a node's normal
+  * input and output tensors.
+  */
+  setGlobalOutput(name: string, tensor: Tensor): void;
+}
+export interface Model {
+  infer(inputs: Tensor[]): Result<Tensor[], ModelInferError>;
+  /**
+  * The shape of this model's input tensors.
+  */
+  inputs(): Shape[];
+  /**
+  * The shape of this model's output tensors.
+  */
+  outputs(): Shape[];
 }

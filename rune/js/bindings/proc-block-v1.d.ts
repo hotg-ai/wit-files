@@ -1,12 +1,18 @@
 export type Result<T, E> = { tag: "ok", val: T } | { tag: "err", val: E };
-export type GraphError = GraphErrorInvalidArgument | GraphErrorOther;
+export type GraphError = GraphErrorOther | GraphErrorInvalidArgument | GraphErrorMissingContext;
+export interface GraphErrorOther {
+  tag: "other",
+  val: string,
+}
 export interface GraphErrorInvalidArgument {
   tag: "invalid-argument",
   val: InvalidArgument,
 }
-export interface GraphErrorOther {
-  tag: "other",
-  val: string,
+/**
+* Unable to retrieve the graph context for this node.
+*/
+export interface GraphErrorMissingContext {
+  tag: "missing-context",
 }
 export interface InvalidArgument {
   name: string,
@@ -16,7 +22,11 @@ export interface InvalidArgument {
 * The reason error is of type string that is thrown by the
 * for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
 */
-export type BadArgumentReason = BadArgumentReasonNotFound | BadArgumentReasonInvalidValue | BadArgumentReasonOther;
+export type BadArgumentReason = BadArgumentReasonOther | BadArgumentReasonNotFound | BadArgumentReasonInvalidValue;
+export interface BadArgumentReasonOther {
+  tag: "other",
+  val: string,
+}
 export interface BadArgumentReasonNotFound {
   tag: "not-found",
 }
@@ -24,22 +34,61 @@ export interface BadArgumentReasonInvalidValue {
   tag: "invalid-value",
   val: string,
 }
-export interface BadArgumentReasonOther {
+export type KernelError = KernelErrorOther | KernelErrorInvalidArgument | KernelErrorInvalidInput | KernelErrorMissingContext;
+export interface KernelErrorOther {
   tag: "other",
   val: string,
 }
-export type KernelError = KernelErrorInvalidArgument | KernelErrorMissingInput | KernelErrorOther;
 export interface KernelErrorInvalidArgument {
   tag: "invalid-argument",
   val: InvalidArgument,
 }
-export interface KernelErrorMissingInput {
-  tag: "missing-input",
-  val: string,
+export interface KernelErrorInvalidInput {
+  tag: "invalid-input",
+  val: InvalidInput,
 }
-export interface KernelErrorOther {
+/**
+* Unable to retrieve the kernel context for this node.
+*/
+export interface KernelErrorMissingContext {
+  tag: "missing-context",
+}
+/**
+* An input tensor was invalid.
+*/
+export interface InvalidInput {
+  /**
+  * The name of the invalid tensor.
+  */
+  name: string,
+  /**
+  * Why it is invalid.
+  */
+  reason: BadInputReason,
+}
+export type BadInputReason = BadInputReasonOther | BadInputReasonNotFound | BadInputReasonInvalidValue | BadInputReasonUnsupportedShape;
+export interface BadInputReasonOther {
   tag: "other",
   val: string,
+}
+/**
+* The input tensor wasn't provided.
+*/
+export interface BadInputReasonNotFound {
+  tag: "not-found",
+}
+/**
+* The input tensor contained an invalid value.
+*/
+export interface BadInputReasonInvalidValue {
+  tag: "invalid-value",
+  val: string,
+}
+/**
+* The input tensor has an unsupported shape.
+*/
+export interface BadInputReasonUnsupportedShape {
+  tag: "unsupported-shape",
 }
 export class ProcBlockV1 {
   

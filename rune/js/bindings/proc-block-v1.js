@@ -46,33 +46,44 @@ export class ProcBlockV1 {
             const len1 = data_view(memory).getInt32(ret + 24, true);
             const list1 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr1, len1));
             free(ptr1, len1, 1);
-            let variant4;
+            variant6 = {
+              tag: "other",
+              val: list1,
+            };
+            break;
+          }
+          case 1: {
+            const ptr2 = data_view(memory).getInt32(ret + 16, true);
+            const len2 = data_view(memory).getInt32(ret + 24, true);
+            const list2 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr2, len2));
+            free(ptr2, len2, 1);
+            let variant5;
             switch (data_view(memory).getInt32(ret + 32, true)) {
               case 0: {
-                variant4 = {
-                  tag: "not-found",
-                };
-                break;
-              }
-              case 1: {
-                const ptr2 = data_view(memory).getInt32(ret + 40, true);
-                const len2 = data_view(memory).getInt32(ret + 48, true);
-                const list2 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr2, len2));
-                free(ptr2, len2, 1);
-                variant4 = {
-                  tag: "invalid-value",
-                  val: list2,
-                };
-                break;
-              }
-              case 2: {
                 const ptr3 = data_view(memory).getInt32(ret + 40, true);
                 const len3 = data_view(memory).getInt32(ret + 48, true);
                 const list3 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr3, len3));
                 free(ptr3, len3, 1);
-                variant4 = {
+                variant5 = {
                   tag: "other",
                   val: list3,
+                };
+                break;
+              }
+              case 1: {
+                variant5 = {
+                  tag: "not-found",
+                };
+                break;
+              }
+              case 2: {
+                const ptr4 = data_view(memory).getInt32(ret + 40, true);
+                const len4 = data_view(memory).getInt32(ret + 48, true);
+                const list4 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr4, len4));
+                free(ptr4, len4, 1);
+                variant5 = {
+                  tag: "invalid-value",
+                  val: list4,
                 };
                 break;
               }
@@ -82,20 +93,15 @@ export class ProcBlockV1 {
             variant6 = {
               tag: "invalid-argument",
               val: {
-                name: list1,
-                reason: variant4,
+                name: list2,
+                reason: variant5,
               },
             };
             break;
           }
-          case 1: {
-            const ptr5 = data_view(memory).getInt32(ret + 16, true);
-            const len5 = data_view(memory).getInt32(ret + 24, true);
-            const list5 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr5, len5));
-            free(ptr5, len5, 1);
+          case 2: {
             variant6 = {
-              tag: "other",
-              val: list5,
+              tag: "missing-context",
             };
             break;
           }
@@ -120,72 +126,72 @@ export class ProcBlockV1 {
     const ptr0 = utf8_encode(arg0, realloc, memory);
     const len0 = UTF8_ENCODED_LEN;
     const ret = this._exports['kernel'](ptr0, len0);
-    let variant8;
+    let variant11;
     switch (data_view(memory).getInt32(ret + 0, true)) {
       case 0: {
-        variant8 = {
+        variant11 = {
           tag: "ok",
         };
         break;
       }
       case 1: {
-        let variant7;
+        let variant10;
         switch (data_view(memory).getInt32(ret + 8, true)) {
           case 0: {
             const ptr1 = data_view(memory).getInt32(ret + 16, true);
             const len1 = data_view(memory).getInt32(ret + 24, true);
             const list1 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr1, len1));
             free(ptr1, len1, 1);
-            let variant4;
+            variant10 = {
+              tag: "other",
+              val: list1,
+            };
+            break;
+          }
+          case 1: {
+            const ptr2 = data_view(memory).getInt32(ret + 16, true);
+            const len2 = data_view(memory).getInt32(ret + 24, true);
+            const list2 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr2, len2));
+            free(ptr2, len2, 1);
+            let variant5;
             switch (data_view(memory).getInt32(ret + 32, true)) {
               case 0: {
-                variant4 = {
-                  tag: "not-found",
-                };
-                break;
-              }
-              case 1: {
-                const ptr2 = data_view(memory).getInt32(ret + 40, true);
-                const len2 = data_view(memory).getInt32(ret + 48, true);
-                const list2 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr2, len2));
-                free(ptr2, len2, 1);
-                variant4 = {
-                  tag: "invalid-value",
-                  val: list2,
-                };
-                break;
-              }
-              case 2: {
                 const ptr3 = data_view(memory).getInt32(ret + 40, true);
                 const len3 = data_view(memory).getInt32(ret + 48, true);
                 const list3 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr3, len3));
                 free(ptr3, len3, 1);
-                variant4 = {
+                variant5 = {
                   tag: "other",
                   val: list3,
+                };
+                break;
+              }
+              case 1: {
+                variant5 = {
+                  tag: "not-found",
+                };
+                break;
+              }
+              case 2: {
+                const ptr4 = data_view(memory).getInt32(ret + 40, true);
+                const len4 = data_view(memory).getInt32(ret + 48, true);
+                const list4 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr4, len4));
+                free(ptr4, len4, 1);
+                variant5 = {
+                  tag: "invalid-value",
+                  val: list4,
                 };
                 break;
               }
               default:
               throw new RangeError("invalid variant discriminant for BadArgumentReason");
             }
-            variant7 = {
+            variant10 = {
               tag: "invalid-argument",
               val: {
-                name: list1,
-                reason: variant4,
+                name: list2,
+                reason: variant5,
               },
-            };
-            break;
-          }
-          case 1: {
-            const ptr5 = data_view(memory).getInt32(ret + 16, true);
-            const len5 = data_view(memory).getInt32(ret + 24, true);
-            const list5 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr5, len5));
-            free(ptr5, len5, 1);
-            variant7 = {
-              tag: "missing-input",
-              val: list5,
             };
             break;
           }
@@ -194,24 +200,72 @@ export class ProcBlockV1 {
             const len6 = data_view(memory).getInt32(ret + 24, true);
             const list6 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr6, len6));
             free(ptr6, len6, 1);
-            variant7 = {
-              tag: "other",
-              val: list6,
+            let variant9;
+            switch (data_view(memory).getInt32(ret + 32, true)) {
+              case 0: {
+                const ptr7 = data_view(memory).getInt32(ret + 40, true);
+                const len7 = data_view(memory).getInt32(ret + 48, true);
+                const list7 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr7, len7));
+                free(ptr7, len7, 1);
+                variant9 = {
+                  tag: "other",
+                  val: list7,
+                };
+                break;
+              }
+              case 1: {
+                variant9 = {
+                  tag: "not-found",
+                };
+                break;
+              }
+              case 2: {
+                const ptr8 = data_view(memory).getInt32(ret + 40, true);
+                const len8 = data_view(memory).getInt32(ret + 48, true);
+                const list8 = UTF8_DECODER.decode(new Uint8Array(memory.buffer, ptr8, len8));
+                free(ptr8, len8, 1);
+                variant9 = {
+                  tag: "invalid-value",
+                  val: list8,
+                };
+                break;
+              }
+              case 3: {
+                variant9 = {
+                  tag: "unsupported-shape",
+                };
+                break;
+              }
+              default:
+              throw new RangeError("invalid variant discriminant for BadInputReason");
+            }
+            variant10 = {
+              tag: "invalid-input",
+              val: {
+                name: list6,
+                reason: variant9,
+              },
+            };
+            break;
+          }
+          case 3: {
+            variant10 = {
+              tag: "missing-context",
             };
             break;
           }
           default:
           throw new RangeError("invalid variant discriminant for KernelError");
         }
-        variant8 = {
+        variant11 = {
           tag: "err",
-          val: variant7,
+          val: variant10,
         };
         break;
       }
       default:
       throw new RangeError("invalid variant discriminant for expected");
     }
-    return variant8;
+    return variant11;
   }
 }
