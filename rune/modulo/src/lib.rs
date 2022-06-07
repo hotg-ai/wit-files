@@ -1,16 +1,16 @@
 use bytemuck::{AnyBitPattern, NoUninit};
 pub use Modulo as Node;
 
-use crate::proc_block_v1::*;
-use num_traits::{FromPrimitive, NumCast, ToPrimitive};
+use crate::proc_block_v2::*;
+use num_traits::{FromPrimitive, ToPrimitive};
 use wit_bindgen_rust::Handle;
 
-wit_bindgen_rust::export!("../proc-block-v1.wit");
-wit_bindgen_rust::import!("../runtime-v1.wit");
+wit_bindgen_rust::export!("../proc-block-v2.wit");
+wit_bindgen_rust::import!("../runtime-v2.wit");
 
-pub struct ProcBlockV1;
+pub struct ProcBlockV2;
 
-impl proc_block_v1::ProcBlockV1 for ProcBlockV1 {
+impl proc_block_v2::ProcBlockV2 for ProcBlockV2 {
     fn metadata() -> Metadata {
         Metadata {
             name: "Modulo".to_string(),
@@ -53,7 +53,7 @@ impl TryFrom<Vec<Argument>> for Modulo {
     }
 }
 
-impl proc_block_v1::Node for Modulo {
+impl proc_block_v2::Node for Modulo {
     fn new(args: Vec<Argument>) -> Result<Handle<crate::Modulo>, ArgumentError> {
         Modulo::try_from(args).map(Handle::new)
     }
@@ -73,7 +73,7 @@ impl proc_block_v1::Node for Modulo {
         }
     }
 
-    fn run(&self, inputs: Vec<Tensor>) -> Result<Vec<Tensor>, proc_block_v1::KernelError> {
+    fn run(&self, inputs: Vec<Tensor>) -> Result<Vec<Tensor>, proc_block_v2::KernelError> {
         let mut tensor = inputs
             .into_iter()
             .find(|tensor| tensor.name == "input")
@@ -128,10 +128,10 @@ where
 }
 
 macro_rules! support {
-    ($($proc_block_v1:ident)::*) => {
+    ($($proc_block:ident)::*) => {
         mod support {
             use std::{fmt::Display, str::FromStr};
-            use $($proc_block_v1)::*::{
+            use $($proc_block)::*::{
                 Argument,
                 ArgumentError,
                 ArgumentErrorReason,
@@ -160,7 +160,7 @@ macro_rules! support {
     };
 }
 
-support!(crate::proc_block_v1);
+support!(crate::proc_block_v2);
 
 #[cfg(test)]
 mod tests {
