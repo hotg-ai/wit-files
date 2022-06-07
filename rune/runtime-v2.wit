@@ -10,32 +10,32 @@ log: function(metadata: log-metadata, message: string, data: log-value-map)
 
 /// The verbosity level used while logging.
 enum log-level {
-    trace,
-    debug,
-    info,
-    warn,
-    error,
-    /// An unrecoverable error occurred.
-    fatal,
+  trace,
+  debug,
+  info,
+  warn,
+  error,
+  /// An unrecoverable error occurred.
+  fatal,
 }
 
 /// A value that can be used when logging structured data.
 variant log-value {
-    null,
-    boolean(bool),
-    integer(s64),
-    float(f64),
-    %string(string),
+  null,
+  boolean(bool),
+  integer(s64),
+  float(f64),
+  %string(string),
 }
 
 /// Metadata for a log event.
 record log-metadata {
-    name: string,
-    target: string,
-    level: log-level,
-    file: option<string>,
-    line: option<u32>,
-    module: option<string>,
+  name: string,
+  target: string,
+  level: log-level,
+  file: option<string>,
+  line: option<u32>,
+  module: option<string>,
 }
 
 /// A list of key-value pairs used when logging structured data.
