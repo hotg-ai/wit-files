@@ -1,4 +1,4 @@
- metadata: function() -> metadata
+metadata: function() -> metadata
 
 resource node {
   static new: function(args: list<argument>) -> expected<node, argument-error>
@@ -16,36 +16,47 @@ resource node {
 
 /// Metadata describing a single node in the Machine Learning pipeline.
 record metadata {
-    name: string,
-    version: string,
-    /// A human-friendly description of the node.
-    ///
-    /// The text may include markdown.
-    description: option<string>,
-    /// A repository containing this node's source code.
-    repository: option<string>,
-    /// The node's home page.
-    ///
-    /// This will typically point to a `README` file or a page on the internet
-    /// that users can go to when they want to find out more about the node.
-    homepage: option<string>,
-    /// Associate this node with a particular tag.
-    ///
-    /// Tags are typically used to assist in search and filtering.
-    tags: list<string>,
-    /// Arguments this node accepts.
-    arguments: list<argument-metadata>,
-    /// Information about this node's input tensors.
-    inputs: list<tensor-metadata>,
-    /// Information about this node's output tensors.
-    outputs: list<tensor-metadata>,
- }
-
-record argument {
+  /// A human-friendly title to use when displaying this node to a user.
   name: string,
+  /// The version number for this node.
+  version: string,
+  /// A human-friendly description of the node.
+  ///
+  /// The text may include markdown.
+  description: option<string>,
+  /// A repository containing this node's source code.
+  repository: option<string>,
+  /// The node's home page.
+  ///
+  /// This will typically point to a `README` file or a page on the internet
+  /// that users can go to when they want to find out more about the node.
+  homepage: option<string>,
+  /// Associate this node with a particular tag.
+  ///
+  /// Tags are typically used to assist in search and filtering.
+  tags: list<string>,
+  /// Arguments this node accepts.
+  arguments: list<argument-metadata>,
+  /// Information about this node's input tensors.
+  inputs: list<tensor-metadata>,
+  /// Information about this node's output tensors.
+  outputs: list<tensor-metadata>,
+}
+
+/// A named argument.
+record argument {
+  /// The argument's name.
+  name: string,
+  /// The argument's value.
   value: string,
 }
 
+/// A multi-dimensional array.
+///
+/// # Note To implementors
+///
+/// String tensors are represented using a variable-length encoding where each
+/// string is prefixed by its length as a little-endian `u32`.
 record tensor {
   /// An identifier used to refer to this tensor.
   name: string,
@@ -55,28 +66,25 @@ record tensor {
   dimensions: list<u32>,
   /// The raw bytes used by this tensor, as little-endian values.
   ///
-  /// Note: because string tensors are represented using a variable-length
-  /// encoding where each string is prefixed by its length as a little-endian
-  /// `u32`.
   buffer: list<u8>,
 }
 
 /// The various types of values a tensor may contain.
 enum element-type {
-    %u8,
-    %i8,
-    %u16,
-    %i16,
-    %u32,
-    %i32,
-    %f32,
-    %u64,
-    %i64,
-    %f64,
-    complex64,
-    complex128,
-    /// A string as UTF-8 encoded bytes.
-    utf8,
+  %u8,
+  %i8,
+  %u16,
+  %i16,
+  %u32,
+  %i32,
+  %f32,
+  %u64,
+  %i64,
+  %f64,
+  complex64,
+  complex128,
+  /// A string as UTF-8 encoded bytes.
+  utf8,
 }
 
 record tensor-constraints {
@@ -110,50 +118,50 @@ flags element-type-constraint {
 }
 
 record argument-error {
-    name: string,
-    reason: argument-error-reason,
+  name: string,
+  reason: argument-error-reason,
 }
 
 /// The reason error is of type string that is thrown by the
 /// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
 variant argument-error-reason {
-    other(string),
-    not-found,
-    invalid-value(string),
+  other(string),
+  not-found,
+  invalid-value(string),
 }
 
 variant kernel-error {
-    other(string),
-    invalid-input(invalid-input),
+  other(string),
+  invalid-input(invalid-input),
 }
 
 /// An input tensor was invalid.
 record invalid-input {
-    /// The name of the invalid tensor.
-    name: string,
-    /// Why it is invalid.
-    reason: invalid-input-reason,
+  /// The name of the invalid tensor.
+  name: string,
+  /// Why it is invalid.
+  reason: invalid-input-reason,
 }
 
 variant invalid-input-reason {
-    other(string),
-    /// The input tensor wasn't provided.
-    not-found,
-    /// The input tensor contained an invalid value.
-    invalid-value(string),
-    /// The input tensor has an unsupported shape.
-    unsupported-shape,
+  other(string),
+  /// The input tensor wasn't provided.
+  not-found,
+  /// The input tensor contained an invalid value.
+  invalid-value(string),
+  /// The input tensor has an unsupported shape.
+  unsupported-shape,
 }
 
 /// The dimensions that a tensor may have.
 variant dimensions {
-    /// There can be an arbitrary number of dimensions with arbitrary sizes.
-    dynamic,
-    /// The tensor has a fixed rank with the provided dimension sizes.
-    ///
-    /// If a particular dimension's length is zero, that is interpreted as the
-    /// dimension being allowed to have any arbitrary length.
-    fixed(list<u32>),
+  /// There can be an arbitrary number of dimensions with arbitrary sizes.
+  dynamic,
+  /// The tensor has a fixed rank with the provided dimension sizes.
+  ///
+  /// If a particular dimension's length is zero, that is interpreted as the
+  /// dimension being allowed to have any arbitrary length.
+  fixed(list<u32>),
 }
 
 record argument-metadata {
@@ -186,16 +194,16 @@ variant argument-hint {
 /// All nodes receive arguments as strings. This enum lets the node hint to the
 /// runtime that an argument may be formatted in a particular way.
 enum argument-type {
-    /// An unsigned integer.
-    unsigned-integer,
-    /// An integer, possibly signed.
-    integer,
-    /// A decimal number.
-    float,
-    /// A short string.
-    %string,
-    /// A multi-line string.
-    long-string,
+  /// An unsigned integer.
+  unsigned-integer,
+  /// An integer, possibly signed.
+  integer,
+  /// A decimal number.
+  float,
+  /// A short string.
+  %string,
+  /// A multi-line string.
+  long-string,
 }
 
 
@@ -213,10 +221,10 @@ record tensor-metadata {
 
 /// Hints that can be used by the runtime when inspecting a tensor.
 variant tensor-hint {
-  /// This tensor should be interpreted as the raw data for some sort of media.
-  media-type(media-type),
   /// A free-form hint that is interpreted by the runtime.
   other(string),
+  /// This tensor should be interpreted as the raw data for some sort of media.
+  media-type(media-type),
 }
 
 enum media-type {
