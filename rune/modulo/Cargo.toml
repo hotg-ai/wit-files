@@ -10,5 +10,6 @@ crate-type = ["rlib", "cdylib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+bytemuck = "1.9.1"
 num-traits = "0.2.14"
 wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen" }

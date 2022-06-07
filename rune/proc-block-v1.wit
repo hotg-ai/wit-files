@@ -1,37 +1,122 @@
-//! Functions and types exposed by the Rune.
+ metadata: function() -> metadata
 
-/// A function called by the runtime when it wants the proc-block to register
-/// metadata.
-register-metadata: function()
+resource node {
+  static new: function(args: list<argument>) -> expected<node, argument-error>
 
-/// A function that is called by the compiler/Forge while constructing the ML
-/// pipeline to find out this node's inputs and outputs.
-///
-/// The implementation can use the provided node ID to retrieve the graph
-/// context for this node.
-graph: function(node-id: string) -> expected<_, graph-error>
+  /// A function that is called by the compiler/Forge while constructing the ML
+  /// pipeline to find out this node's inputs and outputs.
+  ///
+  /// The implementation can use the provided node ID to retrieve the graph
+  /// context for this node.
+  tensor-constraints: function() -> tensor-constraints
 
-/// The function called when doing inference.
-///
-/// The implementation can use the provided node ID to retrieve the kernel
-/// context for this node.
-kernel: function(node-id: string) -> expected<_, kernel-error>
-
-variant graph-error {
-    other(string),
-    invalid-argument(invalid-argument),
-    /// Unable to retrieve the graph context for this node.
-    missing-context,
+  /// Evaluate this node.
+  run: function(inputs: list<tensor>) -> expected<list<tensor>, kernel-error>
 }
 
-record invalid-argument {
+/// Metadata describing a single node in the Machine Learning pipeline.
+record metadata {
     name: string,
-    reason: bad-argument-reason,
+    version: string,
+    /// A human-friendly description of the node.
+    ///
+    /// The text may include markdown.
+    description: option<string>,
+    /// A repository containing this node's source code.
+    repository: option<string>,
+    /// The node's home page.
+    ///
+    /// This will typically point to a `README` file or a page on the internet
+    /// that users can go to when they want to find out more about the node.
+    homepage: option<string>,
+    /// Associate this node with a particular tag.
+    ///
+    /// Tags are typically used to assist in search and filtering.
+    tags: list<string>,
+    /// Arguments this node accepts.
+    arguments: list<argument-metadata>,
+    /// Information about this node's input tensors.
+    inputs: list<tensor-metadata>,
+    /// Information about this node's output tensors.
+    outputs: list<tensor-metadata>,
+ }
+
+record argument {
+  name: string,
+  value: string,
+}
+
+record tensor {
+  /// An identifier used to refer to this tensor.
+  name: string,
+  /// The type of data this tensor contains.
+  element-type: element-type,
+  /// The tensor's dimensions.
+  dimensions: list<u32>,
+  /// The raw bytes used by this tensor, as little-endian values.
+  ///
+  /// Note: because string tensors are represented using a variable-length
+  /// encoding where each string is prefixed by its length as a little-endian
+  /// `u32`.
+  buffer: list<u8>,
+}
+
+/// The various types of values a tensor may contain.
+enum element-type {
+    %u8,
+    %i8,
+    %u16,
+    %i16,
+    %u32,
+    %i32,
+    %f32,
+    %u64,
+    %i64,
+    %f64,
+    complex64,
+    complex128,
+    /// A string as UTF-8 encoded bytes.
+    utf8,
+}
+
+record tensor-constraints {
+  inputs: list<tensor-constraint>,
+  outputs: list<tensor-constraint>,
+}
+
+record tensor-constraint {
+  name: string,
+  element-type: element-type-constraint,
+  dimensions: dimensions,
+}
+
+flags element-type-constraint {
+  %u8,
+  %i8,
+  %u16,
+  %i16,
+  %u32,
+  %i32,
+  %f32,
+  %u64,
+  %i64,
+  %f64,
+  /// A complex number containing two 32-bit floats.
+  complex64,
+  /// A complex number containing two 64-bit floats.
+  complex128,
+  /// A string as UTF-8 encoded bytes.
+  utf8,
+}
+
+record argument-error {
+    name: string,
+    reason: argument-error-reason,
 }
 
 /// The reason error is of type string that is thrown by the
 /// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
-variant bad-argument-reason {
+variant argument-error-reason {
     other(string),
     not-found,
     invalid-value(string),
@@ -39,10 +124,7 @@ variant bad-argument-reason {
 
 variant kernel-error {
     other(string),
-    invalid-argument(invalid-argument),
     invalid-input(invalid-input),
-    /// Unable to retrieve the kernel context for this node.
-    missing-context,
 }
 
 /// An input tensor was invalid.
@@ -50,10 +132,10 @@ record invalid-input {
     /// The name of the invalid tensor.
     name: string,
     /// Why it is invalid.
-    reason: bad-input-reason,
+    reason: invalid-input-reason,
 }
 
-variant bad-input-reason {
+variant invalid-input-reason {
     other(string),
     /// The input tensor wasn't provided.
     not-found,
@@ -61,4 +143,85 @@ variant bad-input-reason {
     invalid-value(string),
     /// The input tensor has an unsupported shape.
     unsupported-shape,
+}
+
+/// The dimensions that a tensor may have.
+variant dimensions {
+    /// There can be an arbitrary number of dimensions with arbitrary sizes.
+    dynamic,
+    /// The tensor has a fixed rank with the provided dimension sizes.
+    ///
+    /// If a particular dimension's length is zero, that is interpreted as the
+    /// dimension being allowed to have any arbitrary length.
+    fixed(list<u32>),
+}
+
+record argument-metadata {
+  /// The name used to refer to this argument.
+  name: string,
+  /// A human-friendly description of the argument.
+  ///
+  /// The text may include markdown.
+  description: option<string>,
+  /// A useful default value for this argument.
+  default-value: option<string>,
+  hints: list<argument-hint>,
+}
+
+/// Hints that can be used by the runtime when inspecting an argument.
+variant argument-hint {
+  /// Hint to the runtime that an argument may be interpreted as a number in
+  /// `[min, max]`.
+  between(tuple<string, string>),
+  /// The argument should be one of the values in this list.
+  one-of(list<string>),
+  /// The argument should be a non-negative number.
+  non-negative-number,
+  /// Tell the runtime that this argument may have a certain "logical" type.
+  argument-type(argument-type),
+}
+
+/// How will an argument be interpreted?
+///
+/// All nodes receive arguments as strings. This enum lets the node hint to the
+/// runtime that an argument may be formatted in a particular way.
+enum argument-type {
+    /// An unsigned integer.
+    unsigned-integer,
+    /// An integer, possibly signed.
+    integer,
+    /// A decimal number.
+    float,
+    /// A short string.
+    %string,
+    /// A multi-line string.
+    long-string,
+}
+
+
+/// Information about a tensor.
+record tensor-metadata {
+  name: string,
+  /// A human-friendly description of the tensor.
+  ///
+  /// The text may include markdown.
+  description: option<string>,
+  /// Add a hint that provides the runtime with contextual information about
+  /// this node.
+  hints: list<tensor-hint>,
+}
+
+/// Hints that can be used by the runtime when inspecting a tensor.
+variant tensor-hint {
+  /// This tensor should be interpreted as the raw data for some sort of media.
+  media-type(media-type),
+  /// A free-form hint that is interpreted by the runtime.
+  other(string),
+}
+
+enum media-type {
+  image,
+  audio,
+  binary,
+  text,
 }
