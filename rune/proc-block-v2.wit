@@ -4,6 +4,8 @@ metadata: function() -> metadata
 /// Instantiate a new node based on the provided arguments.
 create-node: function(args: list<argument>) -> expected<node, create-error>
 
+/// A self-contained computation that can be used as part of a data processing
+/// pipeline.
 resource node {
   /// A function that is called by the compiler/Forge while constructing the ML
   /// pipeline to find out this node's inputs and outputs.
@@ -67,7 +69,6 @@ record tensor {
   /// The tensor's dimensions.
   dimensions: list<u32>,
   /// The raw bytes used by this tensor, as little-endian values.
-  ///
   buffer: list<u8>,
 }
 
@@ -89,17 +90,23 @@ enum element-type {
   utf8,
 }
 
+/// Constraints describing a node's input and output tensors.
 record tensor-constraints {
   inputs: list<tensor-constraint>,
   outputs: list<tensor-constraint>,
 }
 
+/// Constraints on the shape a tensor may take.
 record tensor-constraint {
+  /// The tensor's name.
   name: string,
+  /// Which element types are supported?
   element-type: element-type-constraint,
+  /// Constraints around the tensor's dimensions.
   dimensions: dimensions,
 }
 
+/// A set of bitflags indicating which element types a tensor may have.
 flags element-type-constraint {
   %u8,
   %i8,
@@ -128,21 +135,31 @@ variant create-error {
   argument(argument-error),
 }
 
+/// An error caused due to a bad argument.
 record argument-error {
+  /// The argument's name.
   name: string,
+  /// Why this is an error.
   reason: argument-error-reason,
 }
 
-/// The reason error is of type string that is thrown by the
-/// for example modulo(n: 0) => graph-error(invalid-argument(name: 'n', reason: invalid-value("N must be positive")))
+/// Why is this argument invalid?
 variant argument-error-reason {
+  /// A catch-all error for when more specific variants aren't appropriate.
   other(string),
+  /// The argument wasn't provided.
   not-found,
+  /// The argument's value doesn't make sense in this context.
   invalid-value(string),
+  /// Unable to parse the argument.
+  parse-failed(string),
 }
 
-variant kernel-error {
+/// Errors that may occur while running a proc-block.
+variant run-error {
+  /// A catch-all error for when more specific variants aren't appropriate.
   other(string),
+  /// One of the input tensors was invalid.
   invalid-input(invalid-input),
 }
 
@@ -154,14 +171,18 @@ record invalid-input {
   reason: invalid-input-reason,
 }
 
+/// Why was this input tensor invalid?
 variant invalid-input-reason {
+  /// A catch-all error for when more specific variants aren't appropriate.
   other(string),
   /// The input tensor wasn't provided.
   not-found,
   /// The input tensor contained an invalid value.
   invalid-value(string),
-  /// The input tensor has an unsupported shape.
-  unsupported-shape,
+  /// The proc-block doesn't support tensors with these dimensions.
+  incompatible-dimensions,
+  /// The proc-block doesn't support a tensor with this element type.
+  incompatible-element-type,
 }
 
 /// The dimensions that a tensor may have.
@@ -238,9 +259,14 @@ variant tensor-hint {
   media-type(media-type),
 }
 
+/// When presented to the user, how should this tensor be interpreted?
 enum media-type {
+  /// A bitmap image.
   image,
+  /// A set of audio samples.
   audio,
+  /// Binary data.
   binary,
+  /// UTF-8 text.
   text,
 }
