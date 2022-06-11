@@ -15,7 +15,7 @@ resource node {
   tensor-constraints: function() -> tensor-constraints
 
   /// Evaluate this node.
-  run: function(inputs: list<tensor>) -> expected<list<tensor>, kernel-error>
+  run: function(inputs: list<tensor>) -> expected<list<tensor>, run-error>
 }
 
 /// Metadata describing a single node in the Machine Learning pipeline.
