@@ -1,8 +1,10 @@
+/// Metadata about this node.
 metadata: function() -> metadata
 
-resource node {
-  static new: function(args: list<argument>) -> expected<node, argument-error>
+/// Instantiate a new node based on the provided arguments.
+create-node: function(args: list<argument>) -> expected<node, create-error>
 
+resource node {
   /// A function that is called by the compiler/Forge while constructing the ML
   /// pipeline to find out this node's inputs and outputs.
   ///
@@ -117,6 +119,15 @@ flags element-type-constraint {
   utf8,
 }
 
+/// An error that may be returned while creating a node.
+variant create-error {
+  /// An arbitrary error.
+  other(string),
+  /// The node couldn't be instantiated because there was an issue with the
+  /// provided arguments.
+  argument(argument-error),
+}
+
 record argument-error {
   name: string,
   reason: argument-error-reason,
@@ -164,6 +175,7 @@ variant dimensions {
   fixed(list<u32>),
 }
 
+/// Metadata about a particular argument that can be used with this node.
 record argument-metadata {
   /// The name used to refer to this argument.
   name: string,
@@ -205,7 +217,6 @@ enum argument-type {
   /// A multi-line string.
   long-string,
 }
-
 
 /// Information about a tensor.
 record tensor-metadata {

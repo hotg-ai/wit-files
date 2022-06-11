@@ -15,8 +15,6 @@ enum log-level {
   info,
   warn,
   error,
-  /// An unrecoverable error occurred.
-  fatal,
 }
 
 /// A value that can be used when logging structured data.
