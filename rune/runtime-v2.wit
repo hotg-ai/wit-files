@@ -1,6 +1,9 @@
 /// Halt execution with an error message.
 abort: function(msg: string)
 
+/// Fill the provided buffer with random bytes.
+get-random: function(buffer: push-buffer<u8>)
+
 /// Check whether a particular message would be logged, allowing the guest to
 /// avoid potentially expensive work.
 is-enabled: function(metadata: log-metadata) -> bool
